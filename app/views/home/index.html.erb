@@ -1,0 +1,17 @@
+<section class="w-full max-w-5xl">
+  <div class="flex flex-col gap-8 py-12">
+    <div class="space-y-4">
+      <p class="text-sm font-medium uppercase tracking-wide text-emerald-700">Setup base</p>
+      <h1 class="text-4xl font-semibold text-zinc-950">Fluxo</h1>
+      <p class="max-w-2xl text-lg text-zinc-700">
+        Rails monolith foundation for personal finance workflows, starting with Devise authentication,
+        PostgreSQL, Hotwire and Tailwind.
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <%= link_to "Sign in", new_user_session_path, class: "rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800" %>
+      <%= link_to "Create account", new_user_registration_path, class: "rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-zinc-100" %>
+    </div>
+  </div>
+</section>
