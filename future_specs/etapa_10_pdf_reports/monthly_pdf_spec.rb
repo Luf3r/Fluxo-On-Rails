@@ -38,7 +38,7 @@ RSpec.describe Reports::MonthlyPdf, type: :service do
     # Skip in environments without pdftotext installed.
     let(:pdf_text) do
       pdf_bytes  = service.generate
-      tmp        = Tempfile.new(["report", ".pdf"])
+      tmp        = Tempfile.new([ "report", ".pdf" ])
       tmp.binmode
       tmp.write(pdf_bytes)
       tmp.close

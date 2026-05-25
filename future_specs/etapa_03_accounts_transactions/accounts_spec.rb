@@ -33,7 +33,7 @@ RSpec.describe "Accounts", type: :request do
     it "returns 404 or redirects for another user's account" do
       other_account = create(:account, user: other)
       get account_path(other_account)
-      expect(response.status).to be_in([302, 404, 401])
+      expect(response.status).to be_in([ 302, 404, 401 ])
     end
   end
 

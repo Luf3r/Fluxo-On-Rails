@@ -9,7 +9,7 @@ RSpec.describe Transactions::ImportCsv, type: :service do
   let(:category) { create(:category, user: user, name: "Alimentação") }
 
   def csv_file(content)
-    Tempfile.new(["import", ".csv"]).tap do |f|
+    Tempfile.new([ "import", ".csv" ]).tap do |f|
       f.write(content)
       f.rewind
     end

@@ -34,7 +34,7 @@ RSpec.describe "Goals", type: :request do
     it "denies access to another user's goal" do
       other = create(:goal, user: create(:user), account: create(:account))
       get progress_goal_path(other)
-      expect(response.status).to be_in([302, 404, 401])
+      expect(response.status).to be_in([ 302, 404, 401 ])
     end
   end
 

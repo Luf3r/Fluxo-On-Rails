@@ -34,7 +34,7 @@ RSpec.describe Tag, type: :model do
 
     it "creates a tag if it does not exist when assigning to transaction" do
       expect {
-        tx.tag_names = ["nova-tag"]
+        tx.tag_names = [ "nova-tag" ]
         tx.save!
       }.to change(Tag, :count).by(1)
     end
@@ -42,7 +42,7 @@ RSpec.describe Tag, type: :model do
     it "reuses existing tag when assigning the same name" do
       existing = create(:tag, user: user, name: "recorrente")
       expect {
-        tx.tag_names = ["recorrente"]
+        tx.tag_names = [ "recorrente" ]
         tx.save!
       }.not_to change(Tag, :count)
       expect(tx.tags).to include(existing)
