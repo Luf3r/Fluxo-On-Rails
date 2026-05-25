@@ -1,0 +1,66 @@
+# spec/services/reports/monthly_pdf_spec.rb
+require "rails_helper"
+
+RSpec.describe Reports::MonthlyPdf, type: :service do
+  let(:user)    { create(:user, name: "João Silva") }
+  let(:account) { create(:account, user: user, initial_balance: 0) }
+  let(:month)   { Date.new(2025, 1, 1) }
+
+  subject(:service) { described_class.new(user, month) }
+
+  before do
+    create(:transaction, :income,  :settled, account: account, amount: 4000, date: month)
+    create(:transaction, :expense, :settled, account: account, amount: 1500, date: month)
+  end
+
+  describe "#generate" do
+    it "returns a non-empty string (raw PDF bytes)" do
+      result = service.generate
+      expect(result).to be_a(String)
+      expect(result).not_to be_empty
+    end
+
+    it "returns valid PDF magic bytes" do
+      result = service.generate
+      expect(result.bytes.first(4)).to eq("%PDF".bytes)
+    end
+
+    it "does not raise for a month with no transactions" do
+      user_empty  = create(:user)
+      empty_month = Date.new(2024, 6, 1)
+      expect { Reports::MonthlyPdf.new(user_empty, empty_month).generate }
+        .not_to raise_error
+    end
+  end
+
+  describe "content" do
+    # These tests parse the PDF to text via pdftotext or Prawn introspection.
+    # Skip in environments without pdftotext installed.
+    let(:pdf_text) do
+      pdf_bytes  = service.generate
+      tmp        = Tempfile.new(["report", ".pdf"])
+      tmp.binmode
+      tmp.write(pdf_bytes)
+      tmp.close
+      `pdftotext #{tmp.path} -`
+    end
+
+    before { skip "pdftotext not available" unless system("which pdftotext > /dev/null 2>&1") }
+
+    it "includes the user's name" do
+      expect(pdf_text).to include("João Silva")
+    end
+
+    it "includes the month reference" do
+      expect(pdf_text).to include("Janeiro").or include("January").or include("2025")
+    end
+
+    it "includes total income" do
+      expect(pdf_text).to include("4000").or include("4.000")
+    end
+
+    it "includes total expense" do
+      expect(pdf_text).to include("1500").or include("1.500")
+    end
+  end
+end

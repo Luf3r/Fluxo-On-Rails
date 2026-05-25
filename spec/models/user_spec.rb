@@ -1,65 +1,101 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe User, type: :model do
-  it "requires a name" do
-    user = build(:user, name: nil)
+  describe "validations" do
+    it "requires a name" do
+      user = build(:user, name: nil)
 
-    expect(user).not_to be_valid
-    expect(user.errors[:name]).to be_present
+      expect(user).not_to be_valid
+      expect(user.errors[:name]).to be_present
+    end
+
+    it "requires an email" do
+      user = build(:user, email: nil)
+
+      expect(user).not_to be_valid
+      expect(user.errors[:email]).to be_present
+    end
+
+    it "requires a password" do
+      user = build(:user, password: nil)
+
+      expect(user).not_to be_valid
+      expect(user.errors[:password]).to be_present
+    end
+
+    it "requires a unique email" do
+      create(:user, email: "ana@example.com")
+      user = build(:user, email: "ana@example.com")
+
+      expect(user).not_to be_valid
+      expect(user.errors[:email]).to be_present
+    end
+
+    it "requires a currency" do
+      user = build(:user, currency: nil)
+
+      expect(user).not_to be_valid
+      expect(user.errors[:currency]).to be_present
+    end
+
+    it "rejects unknown currencies" do
+      user = build(:user, currency: "XYZ")
+
+      expect(user).not_to be_valid
+      expect(user.errors[:currency]).to be_present
+    end
+
+    it "accepts supported currencies" do
+      User::SUPPORTED_CURRENCIES.each do |currency|
+        expect(build(:user, currency: currency)).to be_valid
+      end
+    end
+
+    it "uses BRL as the factory default currency" do
+      user = build(:user)
+
+      expect(user.currency).to eq("BRL")
+    end
   end
 
-  it "requires an email" do
-    user = build(:user, email: nil)
-
-    expect(user).not_to be_valid
-    expect(user.errors[:email]).to be_present
+  describe "Devise modules" do
+    it "uses database authentication, registration, recovery, rememberable sessions, and validation" do
+      expect(described_class.devise_modules).to include(
+        :database_authenticatable,
+        :registerable,
+        :recoverable,
+        :rememberable,
+        :validatable
+      )
+    end
   end
 
-  it "requires a password" do
-    user = build(:user, password: nil)
+  describe "email verification parity field" do
+    it "stores avatar URL and email verification timestamp" do
+      verified_at = Time.current
 
-    expect(user).not_to be_valid
-    expect(user.errors[:password]).to be_present
-  end
+      user = create(
+        :user,
+        avatar_url: "https://example.com/avatar.png",
+        email_verified_at: verified_at
+      )
 
-  it "requires a currency" do
-    user = build(:user, currency: nil)
+      expect(user.reload.avatar_url).to eq("https://example.com/avatar.png")
+      expect(user.email_verified_at.to_i).to eq(verified_at.to_i)
+    end
 
-    expect(user).not_to be_valid
-    expect(user.errors[:currency]).to be_present
-  end
+    it "stores email_verified_at when set" do
+      user = create(:user, email_verified_at: nil)
 
-  it "accepts only supported currencies" do
-    user = build(:user, currency: "GBP")
+      user.update!(email_verified_at: Time.current)
 
-    expect(user).not_to be_valid
-    expect(user.errors[:currency]).to be_present
-  end
+      expect(user.reload.email_verified_at).not_to be_nil
+    end
 
-  it "requires a unique email" do
-    create(:user, email: "duplicate@example.com")
-    user = build(:user, email: "duplicate@example.com")
+    it "is nil by default" do
+      user = create(:user, email_verified_at: nil)
 
-    expect(user).not_to be_valid
-    expect(user.errors[:email]).to be_present
-  end
-
-  it "defaults currency to BRL" do
-    user = User.new
-
-    expect(user.currency).to eq("BRL")
-  end
-
-  it "stores avatar URL and email verification timestamp" do
-    verified_at = Time.current
-
-    user = create(
-      :user,
-      avatar_url: "https://example.com/avatar.png",
-      email_verified_at: verified_at
-    )
-
-    expect(user.reload.avatar_url).to eq("https://example.com/avatar.png")
-    expect(user.email_verified_at.to_i).to eq(verified_at.to_i)
+      expect(user.email_verified_at).to be_nil
+    end
   end
 end
