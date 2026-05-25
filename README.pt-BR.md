@@ -29,7 +29,7 @@ Este repositório está atualmente na **fase de setup base**: a fundação Rails
 | Armazenamento de arquivos | Active Storage (disco em dev/test) |
 | Testes | RSpec · FactoryBot · Capybara |
 | Linting | RuboCop Rails Omakase |
-| Serviços locais | Docker Compose (apenas Mailpit) |
+| Serviços locais | Docker Compose (PostgreSQL para testes · Mailpit) |
 
 ---
 
@@ -39,7 +39,7 @@ Este repositório está atualmente na **fase de setup base**: a fundação Rails
 mise trust
 mise install
 cp .env.example .env
-# Preencha DATABASE_URL e TEST_DATABASE_URL com URLs Neon separadas.
+# Preencha DATABASE_URL com sua URL Neon. TEST_DATABASE_URL usa Postgres local por padrão.
 docker compose up -d
 bundle install
 bin/rails db:migrate
@@ -49,7 +49,7 @@ bin/dev
 - App: http://localhost:3000
 - Mailpit: http://localhost:8025
 
-O Docker Compose sobe apenas o Mailpit. O Fluxo não usa um serviço PostgreSQL local — desenvolvimento e produção leem uma URL Neon de `DATABASE_URL`. Testes locais leem um banco ou branch Neon novo e isolado de `TEST_DATABASE_URL`, para que a preparação do ambiente de teste do Rails não consiga resetar dados de desenvolvimento nem despejar tabelas do schema Prisma anterior. O GitHub Actions usa um serviço PostgreSQL efêmero na CI em vez de um secret de banco do repositório.
+O Docker Compose sobe PostgreSQL para testes locais e Mailpit para email em desenvolvimento. Desenvolvimento e produção leem uma URL Neon de `DATABASE_URL`. Testes locais usam `postgresql://postgres:postgres@localhost:5432/fluxo_test` por padrão, e você pode sobrescrever `TEST_DATABASE_URL` quando quiser usar um banco remoto de teste separado. O GitHub Actions também usa um serviço PostgreSQL efêmero na CI em vez de um secret de banco do repositório.
 
 O `dotenv-rails` carrega `.env` no desenvolvimento e nos testes. Ambientes de deploy devem fornecer credenciais pela configuração de secrets/runtime da plataforma.
 
@@ -74,7 +74,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 **Implementado:**
 
 - Scaffold Rails full-stack com Hotwire e Tailwind CSS
-- Configuração Neon Serverless Postgres (URLs separadas para desenvolvimento e teste)
+- Neon Serverless Postgres em runtime, com PostgreSQL local/CI para testes
 - `User` Devise com `name`, `currency` (validado contra ISO 4217: BRL, USD, EUR), `avatar_url` e `email_verified_at` (campo de paridade — Devise confirmable não ativado)
 - Página inicial e entradas de autenticação Devise
 - Serviço local Mailpit para email em desenvolvimento

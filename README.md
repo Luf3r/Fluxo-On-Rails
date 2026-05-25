@@ -29,7 +29,7 @@ This repository is currently in its **base setup phase**: the Rails foundation i
 | File storage | Active Storage (disk in dev/test) |
 | Testing | RSpec · FactoryBot · Capybara |
 | Linting | RuboCop Rails Omakase |
-| Local services | Docker Compose (Mailpit only) |
+| Local services | Docker Compose (PostgreSQL for tests · Mailpit) |
 
 ---
 
@@ -39,7 +39,7 @@ This repository is currently in its **base setup phase**: the Rails foundation i
 mise trust
 mise install
 cp .env.example .env
-# Fill DATABASE_URL and TEST_DATABASE_URL with separate Neon URLs.
+# Fill DATABASE_URL with your Neon URL. TEST_DATABASE_URL defaults to local Postgres.
 docker compose up -d
 bundle install
 bin/rails db:migrate
@@ -49,7 +49,7 @@ bin/dev
 - App: http://localhost:3000
 - Mailpit: http://localhost:8025
 
-Docker Compose starts only Mailpit. Fluxo does not use a local PostgreSQL service — both development and production read a Neon URL from `DATABASE_URL`. Local tests read a fresh isolated Neon database or branch from `TEST_DATABASE_URL` so Rails test preparation cannot reset development data or dump tables from the previous Prisma schema. GitHub Actions uses an ephemeral PostgreSQL service for CI instead of a repository database secret.
+Docker Compose starts PostgreSQL for local tests and Mailpit for development email. Development and production read a Neon URL from `DATABASE_URL`. Local tests default to `postgresql://postgres:postgres@localhost:5432/fluxo_test`, and you can override `TEST_DATABASE_URL` when you intentionally want a separate remote test database. GitHub Actions also uses an ephemeral PostgreSQL service for CI instead of a repository database secret.
 
 `dotenv-rails` loads `.env` in development and test. Deployed environments should provide credentials through their runtime secret configuration.
 
@@ -74,7 +74,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 **Implemented:**
 
 - Rails full-stack scaffold with Hotwire and Tailwind CSS
-- Neon Serverless Postgres configuration (separate URLs for development and test)
+- Neon Serverless Postgres for runtime, with local/CI PostgreSQL for tests
 - Devise `User` with `name`, `currency` (validated against ISO 4217: BRL, USD, EUR), `avatar_url` and `email_verified_at` (parity field — Devise confirmable not enabled)
 - Home page and Devise authentication entry points
 - Local Mailpit service for development email

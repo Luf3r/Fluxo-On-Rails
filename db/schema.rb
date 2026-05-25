@@ -14,28 +14,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_190000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
-  create_table "User", id: :uuid, default: -> { "uuidv7()" }, force: :cascade do |t|
-    t.text "avatarUrl"
-    t.datetime "createdAt", precision: 3, default: -> { "CURRENT_TIMESTAMP" }, null: false
-    t.text "currency", null: false
-    t.text "email", null: false
-    t.datetime "emailVerifiedAt", precision: 3
-    t.text "name", null: false
-    t.text "passwordHash", null: false
-    t.datetime "updatedAt", precision: 3, null: false
-    t.index ["email"], name: "User_email_key", unique: true
-  end
-
-  create_table "_prisma_migrations", id: { type: :string, limit: 36 }, force: :cascade do |t|
-    t.integer "applied_steps_count", default: 0, null: false
-    t.string "checksum", limit: 64, null: false
-    t.timestamptz "finished_at"
-    t.text "logs"
-    t.string "migration_name", limit: 255, null: false
-    t.timestamptz "rolled_back_at"
-    t.timestamptz "started_at", default: -> { "now()" }, null: false
-  end
-
   create_table "users", force: :cascade do |t|
     t.string "avatar_url"
     t.datetime "created_at", null: false

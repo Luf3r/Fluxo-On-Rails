@@ -14,9 +14,9 @@ Use a conventional Rails 8.1.3 monolith with Neon Serverless Postgres, Hotwire, 
 
 Authentication starts with email and password through Devise. The `users` table keeps the base Devise fields plus `name`, `currency`, nullable `avatar_url` and nullable product-level `email_verified_at` for TypeScript reference parity. `email_verified_at` does not enable Devise confirmable in this phase.
 
-Database configuration is Neon-only from the base setup. Development and production read the Neon runtime URL from `DATABASE_URL`. Test and CI read an isolated Neon URL from `TEST_DATABASE_URL` so Rails test preparation cannot target the development database.
+Database configuration uses Neon for runtime and disposable PostgreSQL databases for tests. Development and production read the Neon runtime URL from `DATABASE_URL`. Test defaults to the local Docker PostgreSQL URL and can be overridden with `TEST_DATABASE_URL` when an isolated remote test database is intentionally needed. CI uses an ephemeral PostgreSQL service.
 
-Local infrastructure uses Docker Compose for Mailpit only. Rails uses Solid Queue, Solid Cache and Solid Cable. Active Storage uses disk services in development and test.
+Local infrastructure uses Docker Compose for test PostgreSQL and Mailpit. Rails uses Solid Queue, Solid Cache and Solid Cable. Active Storage uses disk services in development and test.
 
 Normal Rails web and worker processes should prefer pooled Neon connection URLs. A direct Neon URL can be kept for migration or release workflows that need it. Solid Cache, Queue and Cable can share the production `DATABASE_URL` or use `CACHE_DATABASE_URL`, `QUEUE_DATABASE_URL` and `CABLE_DATABASE_URL` if separate Neon databases are provisioned.
 
