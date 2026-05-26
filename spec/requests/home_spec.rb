@@ -8,6 +8,14 @@ RSpec.describe "Home", type: :request do
     expect(response.body).to include("Fluxo")
   end
 
+  it "sends a restrictive content security policy" do
+    get root_path
+
+    expect(response.headers["Content-Security-Policy"]).to include("default-src 'self'")
+    expect(response.headers["Content-Security-Policy"]).to include("object-src 'none'")
+    expect(response.headers["Content-Security-Policy"]).to include("frame-ancestors 'none'")
+  end
+
   it "loads the root page for an authenticated user" do
     user = create(:user, password: "password123")
     post user_session_path, params: {

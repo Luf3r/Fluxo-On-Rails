@@ -78,6 +78,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Neon Serverless Postgres for runtime, with local/CI PostgreSQL for tests
 - Devise `User` with `name`, `currency` (validated against ISO 4217: BRL, USD, EUR), `avatar_url` and `email_verified_at` (parity field — Devise confirmable not enabled)
 - Rack::Attack throttles for login and password reset attempts
+- Enforced Content Security Policy for browser responses
 - Home page and Devise authentication entry points
 - Local Mailpit service for development email
 - CI: database migrations, RSpec, RuboCop, Zeitwerk and production asset precompile
