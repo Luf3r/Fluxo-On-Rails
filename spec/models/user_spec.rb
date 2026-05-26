@@ -56,6 +56,12 @@ RSpec.describe User, type: :model do
 
       expect(user.currency).to eq("BRL")
     end
+
+    it "normalizes email case and whitespace through Devise" do
+      user = create(:user, email: "  ANA@EXAMPLE.COM  ")
+
+      expect(user.email).to eq("ana@example.com")
+    end
   end
 
   describe "Devise modules" do

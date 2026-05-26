@@ -24,6 +24,7 @@ This repository is currently in its **base setup phase**: the Rails foundation i
 | Language / Framework | Ruby 4.0.5 · Rails 8.1.3 |
 | Database | Neon Serverless Postgres |
 | Authentication | Devise (email + password) |
+| Abuse protection | Rack::Attack rate limiting |
 | Background jobs / Cache / WebSockets | Solid Queue · Solid Cache · Solid Cable |
 | Frontend | Hotwire · Turbo · Stimulus · Tailwind CSS v4 |
 | File storage | Active Storage (disk in dev/test) |
@@ -76,6 +77,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Rails full-stack scaffold with Hotwire and Tailwind CSS
 - Neon Serverless Postgres for runtime, with local/CI PostgreSQL for tests
 - Devise `User` with `name`, `currency` (validated against ISO 4217: BRL, USD, EUR), `avatar_url` and `email_verified_at` (parity field — Devise confirmable not enabled)
+- Rack::Attack throttles for login and password reset attempts
 - Home page and Devise authentication entry points
 - Local Mailpit service for development email
 - CI: database migrations, RSpec, RuboCop, Zeitwerk and production asset precompile
