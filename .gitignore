@@ -16,6 +16,7 @@
 /log/
 /tmp/
 /storage/
+/spec/examples.txt
 
 /public/assets
 
