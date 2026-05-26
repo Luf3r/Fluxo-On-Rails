@@ -49,7 +49,9 @@ RSpec.describe Reports::MonthlyPdf, type: :service do
       Open3.capture2("pdftotext", tmp.path, "-").first
     end
 
-    before { skip "pdftotext not available" unless system("which pdftotext > /dev/null 2>&1") }
+    before do
+      skip "pdftotext not available" unless system("which", "pdftotext", out: File::NULL, err: File::NULL)
+    end
 
     it "includes the user's name" do
       expect(pdf_text).to include("João Silva")

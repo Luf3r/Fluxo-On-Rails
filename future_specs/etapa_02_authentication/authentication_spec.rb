@@ -72,11 +72,18 @@ RSpec.describe "Authentication", type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
-    it "rejects unknown email" do
+    it "returns the same observable response for wrong password and unknown email" do
+      post user_session_path, params: {
+        user: { email: user.email, password: "wrong" }
+      }
+      wrong_password_response = [ response.status, response.location, response.body ]
+
       post user_session_path, params: {
         user: { email: "nobody@example.com", password: "anything" }
       }
-      expect(response).not_to redirect_to(root_path)
+      unknown_email_response = [ response.status, response.location, response.body ]
+
+      expect(unknown_email_response).to eq(wrong_password_response)
     end
   end
 

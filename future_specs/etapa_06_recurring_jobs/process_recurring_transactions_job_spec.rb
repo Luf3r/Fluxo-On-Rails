@@ -42,6 +42,24 @@ RSpec.describe ProcessRecurringTransactionsJob, type: :job do
         last_tx = Transaction.order(:created_at).last
         expect(last_tx.recurring_rule_id).to eq(rule.id)
       end
+
+      it "creates the child transaction on the source account owner" do
+        described_class.new.perform
+        last_tx = Transaction.order(:created_at).last
+        expect(last_tx.account).to eq(rule.transaction.account)
+        expect(last_tx.account.user).to eq(rule.transaction.account.user)
+      end
+
+      it "does not create a duplicate child for the same rule and occurrence date" do
+        source_tx = rule.transaction
+        create(:transaction, :expense, :settled,
+               account: source_tx.account,
+               amount: source_tx.amount,
+               date: rule.next_date,
+               recurring_rule: rule)
+
+        expect { described_class.new.perform }.not_to change(Transaction, :count)
+      end
     end
 
     context "with rules due in the future" do

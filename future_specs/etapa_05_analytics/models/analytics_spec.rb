@@ -7,10 +7,17 @@ RSpec.describe Analytics, type: :model do
 
   let(:user)    { create(:user) }
   let(:account) { create(:account, user: user, initial_balance: 0) }
+  let(:other_user) { create(:user) }
+  let(:other_account) { create(:account, user: other_user, initial_balance: 0) }
 
   def create_tx(type:, amount:, date: Date.current, status: :settled, category: nil)
     create(:transaction, transaction_type: type, amount: amount, date: date,
            status: status, account: account, category: category)
+  end
+
+  def create_other_tx(type:, amount:, date: Date.current, status: :settled, category: nil, description: nil)
+    create(:transaction, transaction_type: type, amount: amount, date: date,
+           status: status, account: other_account, category: category, description: description)
   end
 
   describe ".monthly_summary" do
@@ -48,11 +55,21 @@ RSpec.describe Analytics, type: :model do
       summary = Analytics.monthly_summary(user, period)
       expect(summary[:income]).to eq(9999)
     end
+
+    it "excludes another user's transactions" do
+      create_other_tx(type: :income, amount: 99_999, date: Date.current)
+      create_other_tx(type: :expense, amount: 88_888, date: Date.current)
+
+      summary = Analytics.monthly_summary(user)
+      expect(summary[:income]).to eq(6000)
+      expect(summary[:expense]).to eq(2500)
+    end
   end
 
   describe ".by_category" do
     let(:food)      { create(:category, user: user, name: "Alimentação") }
     let(:transport) { create(:category, user: user, name: "Transporte") }
+    let(:other_category) { create(:category, user: other_user, name: "Private Other Category") }
 
     before do
       create_tx(type: :expense, amount: 500, category: food)
@@ -76,6 +93,14 @@ RSpec.describe Analytics, type: :model do
       result = Analytics.by_category(user)
       totals = result.map { |r| r[:total] }
       expect(totals).to eq(totals.sort.reverse)
+    end
+
+    it "excludes another user's categories and transactions" do
+      create_other_tx(type: :expense, amount: 99_999, category: other_category)
+
+      result = Analytics.by_category(user)
+      expect(result.map { |r| r[:name] }).not_to include("Private Other Category")
+      expect(result.map { |r| r[:total] }).not_to include(99_999)
     end
   end
 
@@ -108,6 +133,13 @@ RSpec.describe Analytics, type: :model do
         expect(m[:net]).to eq(m[:income] - m[:expense])
       end
     end
+
+    it "excludes another user's monthly totals" do
+      create_other_tx(type: :income, amount: 99_999, date: Date.current)
+
+      result = Analytics.monthly_evolution(user)
+      expect(result.map { |m| m[:income] }).not_to include(99_999)
+    end
   end
 
   describe ".top_expenses" do
@@ -131,6 +163,14 @@ RSpec.describe Analytics, type: :model do
       amounts = result.map { |r| r[:amount] }
       expect(amounts).to eq(amounts.sort.reverse)
     end
+
+    it "excludes another user's expenses" do
+      create_other_tx(type: :expense, amount: 99_999, description: "Private Other Expense")
+
+      result = Analytics.top_expenses(user)
+      expect(result.map { |r| r[:amount] }).not_to include(99_999)
+      expect(result.map { |r| r[:description] }).not_to include("Private Other Expense")
+    end
   end
 
   describe "caching" do
@@ -141,11 +181,27 @@ RSpec.describe Analytics, type: :model do
     end
 
     it "cache expires after 5 minutes" do
-      summary_key = "analytics/summary/#{user.id}/#{Date.current}"
+      period = Date.current.all_month
+      summary_key = "analytics/summary/#{user.id}/#{period.begin.to_date}/#{period.end.to_date}"
       Rails.cache.write(summary_key, "stale", expires_in: 5.minutes)
       travel 6.minutes do
         expect(Rails.cache.read(summary_key)).to be_nil
       end
+    end
+
+    it "uses separate cache entries for different summary periods" do
+      current_period = Date.current.all_month
+      previous_period = 1.month.ago.all_month
+
+      expect(Rails.cache).to receive(:fetch)
+        .with("analytics/summary/#{user.id}/#{current_period.begin.to_date}/#{current_period.end.to_date}", expires_in: 5.minutes)
+        .and_call_original
+      expect(Rails.cache).to receive(:fetch)
+        .with("analytics/summary/#{user.id}/#{previous_period.begin.to_date}/#{previous_period.end.to_date}", expires_in: 5.minutes)
+        .and_call_original
+
+      Analytics.monthly_summary(user, current_period)
+      Analytics.monthly_summary(user, previous_period)
     end
   end
 end
