@@ -34,10 +34,11 @@ The development order also includes later stages that do not yet have contract s
 - Etapa 11: polished Hotwire frontend.
 - Etapa 12: final test hardening, deployment, and release documentation.
 
-Known cleanup before promotion:
+Promotion checklist:
 
-- Remove placeholder expectations such as `expect(true).to be(true)`.
-- Replace `rescue nil` in request specs with explicit expected status codes or exceptions.
-- Replace permissive matchers like `.or satisfy { |_| true }` with one chosen behavior.
-- Split files that describe multiple production files, such as mailer specs that cover more than one mailer.
+- Keep request specs explicit about authorization failures; current future contracts prefer `404 Not Found` for resources owned by another user.
+- Keep CSV import behavior deterministic; current future contracts raise `Transactions::ImportCsv::InvalidFormatError` for non-CSV input.
+- Preserve injectable executors for transfer persistence and recurring-rule processing so failure paths can be tested without `allow_any_instance_of`.
+- Preserve tenant isolation contracts for every route, report, mailer, background job, and imported foreign key before moving specs into `spec/`.
+- Keep authentication responses indistinguishable where differences would allow user enumeration.
 - Keep each promoted spec aligned with the stage's actual dependencies and gems.

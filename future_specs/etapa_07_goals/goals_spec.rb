@@ -28,13 +28,14 @@ RSpec.describe "Goals", type: :request do
     it "returns 200 with progress data" do
       get progress_goal_path(goal)
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include("percent").or include("current").or include("500")
+      expect(response.body).to include("percent")
+      expect(response.body).to include("500")
     end
 
     it "denies access to another user's goal" do
       other = create(:goal, user: create(:user), account: create(:account))
       get progress_goal_path(other)
-      expect(response.status).to be_in([ 302, 404, 401 ])
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -48,7 +49,14 @@ RSpec.describe "Goals", type: :request do
 
     it "returns projection null message when no history" do
       get projection_goal_path(goal)
-      expect(response.body).to include("null").or include("nil").or include("projection")
+      expect(response.body).to include("projection")
+      expect(response.body).to include("null")
+    end
+
+    it "denies access to another user's goal" do
+      other = create(:goal, user: create(:user), account: create(:account))
+      get projection_goal_path(other)
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -82,6 +90,17 @@ RSpec.describe "Goals", type: :request do
         }
       }.not_to change(Goal, :count)
     end
+
+    it "rejects a goal attached to another user's account" do
+      other_account = create(:account, user: create(:user))
+
+      expect {
+        post goals_path, params: {
+          goal: valid_params[:goal].merge(account_id: other_account.id)
+        }
+      }.not_to change(Goal, :count)
+      expect(response).to have_http_status(:not_found)
+    end
   end
 
   describe "DELETE /goals/:id" do
@@ -89,6 +108,13 @@ RSpec.describe "Goals", type: :request do
 
     it "destroys the goal" do
       expect { delete goal_path(goal) }.to change(Goal, :count).by(-1)
+    end
+
+    it "does not destroy another user's goal" do
+      other = create(:goal, user: create(:user), account: create(:account))
+
+      expect { delete goal_path(other) }.not_to change(Goal, :count)
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

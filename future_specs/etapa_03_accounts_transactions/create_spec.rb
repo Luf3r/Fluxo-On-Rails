@@ -63,23 +63,29 @@ RSpec.describe Transfers::Create, type: :service do
     end
 
     context "atomicity" do
-      before do
-        allow_any_instance_of(Transaction).to receive(:save!)
-          .and_call_original
-        allow_any_instance_of(Account).to receive(:transactions)
-          .and_call_original
+      subject(:service) { described_class.new(transaction_executor: transaction_executor) }
+
+      let(:transaction_executor) do
+        Class.new do
+          def initialize
+            @save_count = 0
+          end
+
+          def save!(transaction)
+            @save_count += 1
+            raise ActiveRecord::RecordInvalid, transaction if @save_count == 2
+
+            transaction.save!
+          end
+        end.new
       end
 
-      it "rolls back both records if the second save fails" do
-        call_count = 0
-        allow_any_instance_of(Transaction).to receive(:save!) do |tx|
-          call_count += 1
-          raise ActiveRecord::RecordInvalid, tx if call_count == 2
-          tx.save_without_validation!
-        end
+      it "rolls back both records if the injected executor fails on the second save" do
+        initial_count = Transaction.count
 
-        expect { service.call(**valid_attrs) rescue nil }
-          .not_to change(Transaction, :count)
+        expect { service.call(**valid_attrs) }
+          .to raise_error(ActiveRecord::RecordInvalid)
+        expect(Transaction.count).to eq(initial_count)
       end
     end
 

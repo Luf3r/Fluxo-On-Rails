@@ -30,10 +30,10 @@ RSpec.describe "Accounts", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "returns 404 or redirects for another user's account" do
+    it "returns 404 for another user's account" do
       other_account = create(:account, user: other)
       get account_path(other_account)
-      expect(response.status).to be_in([ 302, 404, 401 ])
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -97,6 +97,7 @@ RSpec.describe "Accounts", type: :request do
       other_account = create(:account, user: other, name: "Protected")
       patch account_path(other_account), params: { account: { name: "Hacked" } }
       expect(other_account.reload.name).to eq("Protected")
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -116,8 +117,9 @@ RSpec.describe "Accounts", type: :request do
 
     it "does not destroy another user's account" do
       other_account = create(:account, user: other)
-      expect { delete account_path(other_account) rescue nil }
+      expect { delete account_path(other_account) }
         .not_to change(Account, :count)
+      expect(response).to have_http_status(:not_found)
     end
   end
 

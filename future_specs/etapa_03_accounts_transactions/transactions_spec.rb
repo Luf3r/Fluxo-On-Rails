@@ -31,6 +31,18 @@ RSpec.describe "Transactions", type: :request do
         expect(response.body).to include("Almoço")
       end
 
+      it "rejects filtering by another user's category" do
+        other_category = create(:category, user: other)
+        create(:transaction, :expense, :settled,
+               account: create(:account, user: other),
+               category: other_category,
+               description: "Other User Private Category Transaction")
+
+        get transactions_path, params: { category_id: other_category.id }
+        expect(response).to have_http_status(:not_found)
+        expect(response.body).not_to include("Other User Private Category Transaction")
+      end
+
       it "filters by date range" do
         get transactions_path, params: {
           start_date: Date.current.to_s,
@@ -95,6 +107,17 @@ RSpec.describe "Transactions", type: :request do
           transaction: valid_params[:transaction].merge(account_id: other_account.id)
         }
       }.not_to change(Transaction, :count)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "rejects creating a transaction with another user's category" do
+      other_category = create(:category, user: other)
+      expect {
+        post transactions_path, params: {
+          transaction: valid_params[:transaction].merge(category_id: other_category.id)
+        }
+      }.not_to change(Transaction, :count)
+      expect(response).to have_http_status(:not_found)
     end
 
     it "sets future transaction as pending" do
@@ -135,6 +158,7 @@ RSpec.describe "Transactions", type: :request do
       other_tx = create(:transaction, :expense, account: create(:account, user: other))
       patch transaction_path(other_tx), params: { transaction: { amount: 1.00 } }
       expect(other_tx.reload.amount).not_to eq(1.00)
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -147,8 +171,9 @@ RSpec.describe "Transactions", type: :request do
 
     it "does not destroy another user's transaction" do
       other_tx = create(:transaction, :income, account: create(:account, user: other))
-      expect { delete transaction_path(other_tx) rescue nil }
+      expect { delete transaction_path(other_tx) }
         .not_to change(Transaction, :count)
+      expect(response).to have_http_status(:not_found)
     end
   end
 

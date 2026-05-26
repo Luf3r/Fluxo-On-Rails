@@ -47,5 +47,16 @@ RSpec.describe Tag, type: :model do
       }.not_to change(Tag, :count)
       expect(tx.tags).to include(existing)
     end
+
+    it "does not reuse another user's tag with the same name" do
+      other_tag = create(:tag, user: create(:user), name: "privado")
+
+      expect {
+        tx.tag_names = [ "privado" ]
+        tx.save!
+      }.to change(Tag, :count).by(1)
+      expect(tx.tags).not_to include(other_tag)
+      expect(tx.tags.last.user).to eq(user)
+    end
   end
 end

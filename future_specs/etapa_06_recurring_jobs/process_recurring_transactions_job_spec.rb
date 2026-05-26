@@ -73,23 +73,32 @@ RSpec.describe ProcessRecurringTransactionsJob, type: :job do
     context "when one rule fails" do
       let!(:good_rule) { make_rule }
       let!(:bad_rule)  { make_rule }
+      let(:rule_executor) do
+        instance_double("RecurringTransactions::RuleExecutor").tap do |executor|
+          allow(executor).to receive(:call).with(good_rule) do
+            source_tx = good_rule.transaction
+            Transaction.create!(
+              account: source_tx.account,
+              amount: source_tx.amount,
+              transaction_type: source_tx.transaction_type,
+              date: good_rule.next_date,
+              recurring_rule: good_rule
+            )
+          end
 
-      before do
-        call_count = 0
-        allow_any_instance_of(RecurringRule).to receive(:advance_next_date!) do
-          call_count += 1
-          raise StandardError, "simulated failure" if call_count == 1
+          allow(executor).to receive(:call).with(bad_rule)
+            .and_raise(StandardError, "simulated failure")
         end
       end
 
       it "continues processing the remaining rules" do
-        expect { described_class.new.perform }
+        expect { described_class.new(rule_executor: rule_executor).perform }
           .to change(Transaction, :count).by_at_least(1)
       end
 
       it "logs the error" do
         expect(Rails.logger).to receive(:error).at_least(:once)
-        described_class.new.perform
+        described_class.new(rule_executor: rule_executor).perform
       end
     end
 

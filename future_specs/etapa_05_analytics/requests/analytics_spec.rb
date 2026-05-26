@@ -20,8 +20,8 @@ RSpec.describe "Analytics", type: :request do
 
     it "includes income, expense and net in the response" do
       get analytics_summary_path
-      expect(response.body).to include("4000").or include("income")
-      expect(response.body).to include("1500").or include("expense")
+      expect(response.body).to include("4000")
+      expect(response.body).to include("1500")
     end
 
     it "requires authentication" do
@@ -79,15 +79,43 @@ RSpec.describe "Analytics", type: :request do
   describe "data isolation" do
     let(:other_user)    { create(:user) }
     let(:other_account) { create(:account, user: other_user) }
+    let(:other_category) { create(:category, user: other_user, name: "Private Other Category") }
 
     before do
       create(:transaction, :income, :settled, account: other_account,
              amount: 99_999, date: Date.current)
+      create(:transaction, :expense, :settled, account: other_account,
+             category: other_category, amount: 88_888, description: "Private Other Expense",
+             date: Date.current)
     end
 
     it "does not include other users data in summary" do
       get analytics_summary_path
       expect(response.body).not_to include("99999")
+    end
+
+    it "does not include other users data in category breakdown" do
+      get analytics_by_category_path
+      expect(response.body).not_to include("Private Other Category")
+      expect(response.body).not_to include("88888")
+    end
+
+    it "does not include other users data in monthly evolution" do
+      get analytics_monthly_path
+      expect(response.body).not_to include("99999")
+      expect(response.body).not_to include("88888")
+    end
+
+    it "does not include other users data in top expenses" do
+      get analytics_top_expenses_path
+      expect(response.body).not_to include("Private Other Expense")
+      expect(response.body).not_to include("88888")
+    end
+
+    it "does not include other users data in budget status" do
+      get analytics_budget_status_path
+      expect(response.body).not_to include("Private Other Category")
+      expect(response.body).not_to include("88888")
     end
   end
 end

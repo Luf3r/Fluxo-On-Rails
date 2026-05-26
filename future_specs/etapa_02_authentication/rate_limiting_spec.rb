@@ -8,6 +8,9 @@ RSpec.describe "Rate Limiting", type: :request do
   #   Rack::Attack.throttle("login/ip", limit: 5, period: 10.minutes) do |req|
   #     req.ip if req.path == "/users/sign_in" && req.post?
   #   end
+  #   Rack::Attack.throttle("login/email", limit: 10, period: 10.minutes) do |req|
+  #     req.params.dig("user", "email").to_s.downcase.strip if req.path == "/users/sign_in" && req.post?
+  #   end
 
   let(:user) { create(:user, password: "correct_password") }
 
@@ -44,6 +47,15 @@ RSpec.describe "Rate Limiting", type: :request do
           expect(response.status).not_to eq(429)
         end
       end
+
+      it "blocks repeated attempts against the same normalized email across IPs" do
+        11.times do |i|
+          post user_session_path,
+            params: { user: { email: "  #{user.email.upcase}  ", password: "wrong" } },
+            headers: { "REMOTE_ADDR" => "10.0.0.#{i}" }
+        end
+        expect(response.status).to eq(429)
+      end
     end
 
     context "with correct credentials" do
@@ -51,6 +63,20 @@ RSpec.describe "Rate Limiting", type: :request do
         post user_session_path, params: {
           user: { email: user.email, password: "correct_password" }
         }
+        expect(response).to redirect_to(root_path)
+      end
+
+      it "allows valid credentials from a different IP before the email limit is reached" do
+        5.times do
+          post user_session_path,
+            params: { user: { email: user.email, password: "wrong" } },
+            headers: { "REMOTE_ADDR" => "1.2.3.4" }
+        end
+
+        post user_session_path,
+          params: { user: { email: user.email, password: "correct_password" } },
+          headers: { "REMOTE_ADDR" => "5.6.7.8" }
+
         expect(response).to redirect_to(root_path)
       end
     end

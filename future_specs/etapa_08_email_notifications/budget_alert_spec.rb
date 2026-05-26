@@ -66,4 +66,17 @@ RSpec.describe "Budget alert on transaction", type: :model do
       }.not_to have_enqueued_mail(BudgetMailer, :alert)
     end
   end
+
+  describe "tenant isolation" do
+    it "does not trigger an alert for another user's category" do
+      other_user = create(:user)
+      other_account = create(:account, user: other_user)
+      other_category = create(:category, user: other_user, budget: 1000.00)
+
+      expect {
+        create(:transaction, :expense, :settled,
+               account: other_account, category: other_category, amount: 900)
+      }.not_to have_enqueued_mail(BudgetMailer, :alert).with(user, anything, anything)
+    end
+  end
 end

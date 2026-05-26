@@ -1,5 +1,6 @@
 # spec/services/reports/monthly_pdf_spec.rb
 require "rails_helper"
+require "open3"
 
 RSpec.describe Reports::MonthlyPdf, type: :service do
   let(:user)    { create(:user, name: "João Silva") }
@@ -11,6 +12,9 @@ RSpec.describe Reports::MonthlyPdf, type: :service do
   before do
     create(:transaction, :income,  :settled, account: account, amount: 4000, date: month)
     create(:transaction, :expense, :settled, account: account, amount: 1500, date: month)
+    other_account = create(:account, user: create(:user, name: "Other User"), initial_balance: 0)
+    create(:transaction, :income, :settled, account: other_account,
+           amount: 99_999, description: "Other User Private Income", date: month)
   end
 
   describe "#generate" do
@@ -42,7 +46,7 @@ RSpec.describe Reports::MonthlyPdf, type: :service do
       tmp.binmode
       tmp.write(pdf_bytes)
       tmp.close
-      `pdftotext #{tmp.path} -`
+      Open3.capture2("pdftotext", tmp.path, "-").first
     end
 
     before { skip "pdftotext not available" unless system("which pdftotext > /dev/null 2>&1") }
@@ -61,6 +65,12 @@ RSpec.describe Reports::MonthlyPdf, type: :service do
 
     it "includes total expense" do
       expect(pdf_text).to include("1500").or include("1.500")
+    end
+
+    it "does not include another user's financial data" do
+      expect(pdf_text).not_to include("Other User")
+      expect(pdf_text).not_to include("Private Income")
+      expect(pdf_text).not_to include("99999")
     end
   end
 end

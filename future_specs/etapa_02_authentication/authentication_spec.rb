@@ -70,7 +70,6 @@ RSpec.describe "Authentication", type: :request do
         user: { email: user.email, password: "wrong" }
       }
       expect(response).to have_http_status(:unprocessable_entity)
-        .or redirect_to(new_user_session_path)
     end
 
     it "rejects unknown email" do
@@ -87,7 +86,7 @@ RSpec.describe "Authentication", type: :request do
     it "signs out the user" do
       sign_in user
       delete destroy_user_session_path
-      expect(response).to redirect_to(root_path).or redirect_to(new_user_session_path)
+      expect(response).to redirect_to(root_path)
     end
   end
 
@@ -97,21 +96,30 @@ RSpec.describe "Authentication", type: :request do
     it "sends reset password instructions" do
       expect {
         post user_password_path, params: { user: { email: user.email } }
-      }.to have_enqueued_mail.or change { ActionMailer::Base.deliveries.count }
+      }.to have_enqueued_mail
     end
 
-    it "ignores unknown email silently (security: no user enumeration)" do
+    it "returns the same observable response for unknown email" do
+      post user_password_path, params: { user: { email: user.email } }
+      existing_response = [ response.status, response.location, response.body ]
+
+      post user_password_path, params: { user: { email: "ghost@example.com" } }
+      unknown_response = [ response.status, response.location, response.body ]
+
+      expect(unknown_response).to eq(existing_response)
+    end
+
+    it "does not send reset instructions for unknown email" do
       expect {
         post user_password_path, params: { user: { email: "ghost@example.com" } }
-      }.not_to raise_error
+      }.not_to have_enqueued_mail
     end
   end
 
   describe "Protected routes" do
     it "redirects unauthenticated user to login" do
-      get accounts_path rescue nil  # route doesn't exist yet — spec is forward-looking
-      # Once accounts exist: expect(response).to redirect_to(new_user_session_path)
-      expect(true).to be(true) # placeholder until Etapa 3
+      get accounts_path
+      expect(response).to redirect_to(new_user_session_path)
     end
   end
 end
