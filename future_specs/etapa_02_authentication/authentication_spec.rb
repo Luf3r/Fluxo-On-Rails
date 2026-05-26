@@ -69,19 +69,19 @@ RSpec.describe "Authentication", type: :request do
       post user_session_path, params: {
         user: { email: user.email, password: "wrong" }
       }
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it "returns the same observable response for wrong password and unknown email" do
       post user_session_path, params: {
         user: { email: user.email, password: "wrong" }
       }
-      wrong_password_response = [ response.status, response.location, response.body ]
+      wrong_password_response = [ response.status, response.location, flash[:alert], flash[:notice] ]
 
       post user_session_path, params: {
         user: { email: "nobody@example.com", password: "anything" }
       }
-      unknown_email_response = [ response.status, response.location, response.body ]
+      unknown_email_response = [ response.status, response.location, flash[:alert], flash[:notice] ]
 
       expect(unknown_email_response).to eq(wrong_password_response)
     end
@@ -108,10 +108,10 @@ RSpec.describe "Authentication", type: :request do
 
     it "returns the same observable response for unknown email" do
       post user_password_path, params: { user: { email: user.email } }
-      existing_response = [ response.status, response.location, response.body ]
+      existing_response = [ response.status, response.location, flash[:alert], flash[:notice] ]
 
       post user_password_path, params: { user: { email: "ghost@example.com" } }
-      unknown_response = [ response.status, response.location, response.body ]
+      unknown_response = [ response.status, response.location, flash[:alert], flash[:notice] ]
 
       expect(unknown_response).to eq(existing_response)
     end

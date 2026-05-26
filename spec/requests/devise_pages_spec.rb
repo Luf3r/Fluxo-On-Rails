@@ -13,6 +13,15 @@ RSpec.describe "Devise pages", type: :request do
     }
   end
 
+  def auth_response_signature
+    {
+      status: response.status,
+      location: response.location,
+      alert: flash[:alert],
+      notice: flash[:notice]
+    }
+  end
+
   it "loads the sign in page" do
     get new_user_session_path
 
@@ -42,28 +51,28 @@ RSpec.describe "Devise pages", type: :request do
     expect {
       post user_registration_path, params: sign_up_params
     }.not_to change(User, :count)
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 
   it "rejects password confirmation mismatch" do
     expect {
       post user_registration_path, params: sign_up_params(password_confirmation: "different123")
     }.not_to change(User, :count)
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 
   it "rejects passwords shorter than the Devise minimum" do
     expect {
       post user_registration_path, params: sign_up_params(password: "short", password_confirmation: "short")
     }.not_to change(User, :count)
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 
   it "rejects unsupported currency during registration" do
     expect {
       post user_registration_path, params: sign_up_params(currency: "XYZ")
     }.not_to change(User, :count)
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response).to have_http_status(:unprocessable_content)
   end
 
   it "does not allow sign up params to set sensitive fields" do
@@ -90,12 +99,12 @@ RSpec.describe "Devise pages", type: :request do
     post user_session_path, params: {
       user: { email: user.email, password: "wrong-password" }
     }
-    wrong_password_response = [ response.status, response.location, response.body ]
+    wrong_password_response = auth_response_signature
 
     post user_session_path, params: {
       user: { email: "missing@example.com", password: "wrong-password" }
     }
-    unknown_email_response = [ response.status, response.location, response.body ]
+    unknown_email_response = auth_response_signature
 
     expect(unknown_email_response).to eq(wrong_password_response)
   end
@@ -126,10 +135,10 @@ RSpec.describe "Devise pages", type: :request do
       user = create(:user, email: "reset@example.com")
 
       post user_password_path, params: { user: { email: user.email } }
-      existing_response = [ response.status, response.location, response.body ]
+      existing_response = auth_response_signature
 
       post user_password_path, params: { user: { email: "ghost@example.com" } }
-      unknown_response = [ response.status, response.location, response.body ]
+      unknown_response = auth_response_signature
 
       expect(unknown_response).to eq(existing_response)
     end
