@@ -32,8 +32,8 @@ RSpec.describe Reports::MonthlyPdf, type: :service do
     it "does not raise for a month with no transactions" do
       user_empty  = create(:user)
       empty_month = Date.new(2024, 6, 1)
-      expect { Reports::MonthlyPdf.new(user_empty, empty_month).generate }
-        .not_to raise_error
+      result = Reports::MonthlyPdf.new(user_empty, empty_month).generate
+      expect(result.bytes.first(4)).to eq("%PDF".bytes)
     end
   end
 
@@ -58,15 +58,15 @@ RSpec.describe Reports::MonthlyPdf, type: :service do
     end
 
     it "includes the month reference" do
-      expect(pdf_text).to include("Janeiro").or include("January").or include("2025")
+      expect(pdf_text).to include("Janeiro")
     end
 
     it "includes total income" do
-      expect(pdf_text).to include("4000").or include("4.000")
+      expect(pdf_text).to include("4000")
     end
 
     it "includes total expense" do
-      expect(pdf_text).to include("1500").or include("1.500")
+      expect(pdf_text).to include("1500")
     end
 
     it "does not include another user's financial data" do

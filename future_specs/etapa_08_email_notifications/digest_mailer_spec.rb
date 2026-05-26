@@ -21,7 +21,7 @@ RSpec.describe DigestMailer, type: :mailer do
     end
 
     it "has a subject referencing the month" do
-      expect(mail.subject).to include("Resumo").or include(Date.current.prev_month.strftime("%B"))
+      expect(mail.subject).to include("Resumo")
     end
 
     it "includes the user name" do

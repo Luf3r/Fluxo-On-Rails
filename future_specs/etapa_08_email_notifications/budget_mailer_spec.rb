@@ -13,7 +13,7 @@ RSpec.describe BudgetMailer, type: :mailer do
     end
 
     it "has a meaningful subject" do
-      expect(mail.subject).to include("orçamento").or include("Alimentação").or include("85")
+      expect(mail.subject).to include("Alimentação")
     end
 
     it "includes the category name in the body" do

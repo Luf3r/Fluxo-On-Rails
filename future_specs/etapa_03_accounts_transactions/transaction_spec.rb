@@ -119,21 +119,24 @@ RSpec.describe Transaction, type: :model do
 
   # ── Cache invalidation ───────────────────────────────────────────────────
   describe "analytics cache invalidation" do
+    let(:user) { create(:user) }
+    let(:account) { create(:account, user: user) }
+    let(:cache_pattern) { "analytics/*/#{user.id}/*" }
+
     it "invalidates cache after create" do
-      account = create(:account)
-      expect(Rails.cache).to receive(:delete_matched).at_least(:once)
+      expect(Rails.cache).to receive(:delete_matched).with(cache_pattern)
       create(:transaction, :income, account: account)
     end
 
     it "invalidates cache after update" do
-      tx = create(:transaction, :income)
-      expect(Rails.cache).to receive(:delete_matched).at_least(:once)
+      tx = create(:transaction, :income, account: account)
+      expect(Rails.cache).to receive(:delete_matched).with(cache_pattern)
       tx.update!(amount: 999)
     end
 
     it "invalidates cache after destroy" do
-      tx = create(:transaction, :income)
-      expect(Rails.cache).to receive(:delete_matched).at_least(:once)
+      tx = create(:transaction, :income, account: account)
+      expect(Rails.cache).to receive(:delete_matched).with(cache_pattern)
       tx.destroy!
     end
   end

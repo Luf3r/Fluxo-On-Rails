@@ -56,7 +56,7 @@ RSpec.describe Goal, type: :model do
 
   describe "#projection" do
     let(:account) { create(:account, initial_balance: 0.00) }
-    let(:goal)    { create(:goal, account: account, target_amount: 3000.00) }
+    let(:goal)    { create(:goal, account: account, target_amount: 6000.00) }
 
     context "with at least 1 month of history" do
       before do
@@ -80,10 +80,9 @@ RSpec.describe Goal, type: :model do
       end
 
       it "estimates correctly based on average monthly income" do
-        # avg = 1000/month, remaining = 3000 - 3000 (from 3 x 1000) = 0 already met
-        # in this case the goal is already met
+        # avg = 1000/month, remaining = 6000 - 3000 (from 3 x 1000)
         result = goal.projection
-        expect(result[:months_remaining]).to eq(0).or be >= 0
+        expect(result[:months_remaining]).to eq(3)
       end
     end
 

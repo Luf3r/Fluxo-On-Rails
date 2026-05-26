@@ -4,7 +4,7 @@
 
 > A personal finance management system rebuilt on a Rails 8.1 monolith. Developed by a single junior developer with AI assistance, demonstrating how modern AI tools can amplify solo developer productivity.
 
-[![CI](https://github.com/luf3r/fluxo/actions/workflows/ci.yml/badge.svg)](https://github.com/luf3r/fluxo/actions/workflows/ci.yml)
+[![CI](https://github.com/luf3r/fluxo-on-rails/actions/workflows/ci.yml/badge.svg)](https://github.com/luf3r/fluxo-on-rails/actions/workflows/ci.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 
 ---

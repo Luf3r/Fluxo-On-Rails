@@ -4,7 +4,7 @@
 
 > Um sistema de gestão financeira pessoal reconstruído em um monolito Rails 8.1. Desenvolvido por um único desenvolvedor júnior com assistência de IA, demonstrando como ferramentas modernas de IA ampliam a produtividade de um dev solo.
 
-[![CI](https://github.com/luf3r/fluxo/actions/workflows/ci.yml/badge.svg)](https://github.com/luf3r/fluxo/actions/workflows/ci.yml)
+[![CI](https://github.com/luf3r/fluxo-on-rails/actions/workflows/ci.yml/badge.svg)](https://github.com/luf3r/fluxo-on-rails/actions/workflows/ci.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 
 ---

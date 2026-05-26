@@ -98,8 +98,9 @@ RSpec.describe Transactions::ImportCsv, type: :service do
       end
 
       it "accepts files under 5MB" do
-        expect { service.call(file: valid_csv, user: user) }
-          .not_to raise_error
+        result = service.call(file: valid_csv, user: user)
+        expect(result[:imported]).to eq(3)
+        expect(result[:errors]).to be_empty
       end
     end
 
