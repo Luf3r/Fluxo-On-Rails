@@ -54,11 +54,44 @@ RSpec.describe "Devise pages", type: :request do
     expect(response).to have_http_status(:unprocessable_content)
   end
 
+  it "shows duplicate email errors in Portuguese" do
+    create(:user, email: "ana@example.com")
+
+    post user_registration_path(locale: :"pt-BR"), params: sign_up_params
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(response.body).to include("Email ja esta em uso")
+    expect(response.body).not_to include("translation missing")
+    expect(response.body).not_to include("has already been taken")
+  end
+
   it "rejects password confirmation mismatch" do
     expect {
       post user_registration_path, params: sign_up_params(password_confirmation: "different123")
     }.not_to change(User, :count)
     expect(response).to have_http_status(:unprocessable_content)
+  end
+
+  it "shows password confirmation errors in Portuguese" do
+    post user_registration_path(locale: :"pt-BR"),
+      params: sign_up_params(password_confirmation: "different123")
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(response.body).to include("Confirmacao de senha nao confere com Senha")
+    expect(response.body).not_to include("translation missing")
+    expect(response.body).not_to include("doesn&#39;t match")
+  end
+
+  it "escapes user-controlled values when rendering Portuguese validation errors" do
+    post user_registration_path(locale: :"pt-BR"),
+      params: sign_up_params(
+        name: "<script>alert('xss')</script>",
+        password_confirmation: "different123"
+      )
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(response.body).not_to include("<script>alert('xss')</script>")
+    expect(response.body).to include("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
   end
 
   it "rejects passwords shorter than the Devise minimum" do
@@ -118,6 +151,20 @@ RSpec.describe "Devise pages", type: :request do
     delete destroy_user_session_path
 
     expect(response).to redirect_to(root_path)
+  end
+
+  it "redirects GET /users away from a development error page" do
+    get "/users"
+
+    expect(response).to redirect_to(new_user_session_path)
+  end
+
+  it "redirects authenticated GET /users to account editing" do
+    sign_in create(:user)
+
+    get "/users"
+
+    expect(response).to redirect_to(edit_user_registration_path)
   end
 
   describe "password reset" do

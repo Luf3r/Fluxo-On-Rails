@@ -54,10 +54,17 @@ pt-BR:
   errors:
     messages:
       already_confirmed: "ja foi confirmado, tente entrar"
+      blank: "nao pode ficar em branco"
       confirmation_period_expired: "precisa ser confirmado em ate %{period}; solicite uma nova confirmacao"
+      confirmation: "nao confere com %{attribute}"
       expired: "expirou; solicite um novo"
+      invalid: "nao e valido"
       not_found: "nao encontrado"
       not_locked: "nao estava bloqueado"
       not_saved:
         one: "1 erro impediu que %{resource} fosse salvo:"
         other: "%{count} erros impediram que %{resource} fosse salvo:"
+      taken: "ja esta em uso"
+      too_short:
+        one: "e muito curto (minimo: 1 caractere)"
+        other: "e muito curto (minimo: %{count} caracteres)"

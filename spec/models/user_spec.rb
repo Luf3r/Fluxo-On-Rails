@@ -65,13 +65,14 @@ RSpec.describe User, type: :model do
   end
 
   describe "Devise modules" do
-    it "uses database authentication, registration, recovery, rememberable sessions, and validation" do
+    it "uses database authentication, registration, recovery, rememberable sessions, validation, and confirmation" do
       expect(described_class.devise_modules).to include(
         :database_authenticatable,
         :registerable,
         :recoverable,
         :rememberable,
-        :validatable
+        :validatable,
+        :confirmable
       )
     end
   end

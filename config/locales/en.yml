@@ -3,6 +3,7 @@ en:
     name: "Fluxo"
     nav:
       aria_label: "Primary"
+      account: "Account"
       sign_in: "Sign in"
       sign_up: "Create account"
       sign_out: "Sign out"
@@ -64,6 +65,7 @@ en:
       sign_in: "I already have an account"
       sign_up: "Create account"
       forgot_password: "I forgot my password"
+      confirmation: "Resend confirmation email"
     errors:
       heading: "Review the highlighted fields."
     registration:
@@ -114,6 +116,38 @@ en:
         password_hint: "Minimum of %{count} characters."
         password_confirmation: "Confirm new password"
         submit: "Update password"
+    confirmations:
+      new:
+        title: "Confirm email - Fluxo"
+        eyebrow: "Email confirmation"
+        headline: "Resend confirmation email"
+        body: "Enter your email and we will send a new confirmation link."
+        email: "Email"
+        submit: "Send confirmation link"
+    account:
+      title: "Account - Fluxo"
+      eyebrow: "Account"
+      headline: "Edit your account details."
+      body: "Keep your profile, default currency, email, and password aligned with how you use Fluxo."
+      status_title: "Account status"
+      status:
+        email: "Email"
+        confirmation: "Email confirmation"
+        confirmed: "Confirmed"
+        pending: "Pending"
+      form_title: "Account settings"
+      form_hint: "Confirm changes with your current password."
+      fields:
+        name: "Name"
+        email: "Email"
+        currency: "Default currency"
+        password: "New password"
+        password_hint: "Leave blank to keep the current password."
+        password_confirmation: "Confirm new password"
+        password_confirmation_hint: "Required only when changing password."
+        current_password: "Current password"
+        current_password_hint: "Required to protect account changes."
+      submit: "Update account"
   activerecord:
     attributes:
       user:

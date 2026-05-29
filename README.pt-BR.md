@@ -76,17 +76,17 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 
 - Scaffold Rails full-stack com Hotwire e Tailwind CSS
 - Neon Serverless Postgres em runtime, com PostgreSQL local/CI para testes
-- `User` Devise com `name`, `currency` (validado contra ISO 4217: BRL, USD, EUR), `avatar_url` e `email_verified_at` (campo de paridade — Devise confirmable não ativado)
+- `User` Devise com `name`, `currency` (validado contra ISO 4217: BRL, USD, EUR), `avatar_url`, confirmacao de email e timestamp de paridade `email_verified_at`
 - Throttles Rack::Attack para tentativas de login e recuperação de senha
 - Content Security Policy aplicada nas respostas do navegador
-- Página inicial e entradas de autenticação Devise
+- Página inicial e entradas completas de autenticação Devise: login, cadastro, recuperação de senha, confirmação de email e edição de conta
 - Serviço local Mailpit para email em desenvolvimento
 - CI: migrations do banco, RSpec, RuboCop, Zeitwerk e precompile dos assets de produção
 
 **Adiado para fases futuras:**
 
 - Contas, transações, categorias, orçamentos, metas e dashboard
-- OAuth e fluxo customizado de confirmação de email
+- OAuth
 - Relatórios em PDF, importação CSV, paginação e busca
 - Configuração de deploy
 
