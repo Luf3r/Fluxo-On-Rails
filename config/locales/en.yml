@@ -61,6 +61,20 @@ en:
       body: "The product puts planning at the center: income, expenses, goals, and priorities appear together to turn financial tracking into a habit."
       cta: "Create my account"
   auth:
+    locales:
+      en: "English"
+      pt_BR: "Portuguese"
+    mailer:
+      confirmation:
+        greeting: "Welcome, %{name}"
+        body: "You can confirm your Fluxo account email through the link below:"
+        cta: "Confirm my account"
+      reset_password:
+        greeting: "Hello, %{name}"
+        body: "Someone requested a link to change your Fluxo password. You can do this through the link below."
+        cta: "Change my password"
+        ignore: "If you did not request this, please ignore this email."
+        no_change: "Your password will not change until you access the link above and create a new one."
     links:
       sign_in: "I already have an account"
       sign_up: "Create account"
@@ -141,6 +155,7 @@ en:
         name: "Name"
         email: "Email"
         currency: "Default currency"
+        preferred_locale: "Email language"
         password: "New password"
         password_hint: "Leave blank to keep the current password."
         password_confirmation: "Confirm new password"
@@ -156,3 +171,4 @@ en:
         password: "Password"
         password_confirmation: "Password confirmation"
         currency: "Currency"
+        preferred_locale: "Email language"

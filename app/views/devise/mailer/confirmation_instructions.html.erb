@@ -1,5 +1,5 @@
-<p>Welcome, <%= @resource.name.presence || @resource.email %>.</p>
+<p><%= t("auth.mailer.confirmation.greeting", name: @resource.name.presence || @resource.email) %></p>
 
-<p>You can confirm your Fluxo account email through the link below:</p>
+<p><%= t("auth.mailer.confirmation.body") %></p>
 
-<p><%= link_to "Confirm my account", confirmation_url(@resource, confirmation_token: @token) %></p>
+<p><%= link_to t("auth.mailer.confirmation.cta"), confirmation_url(@resource, confirmation_token: @token) %></p>

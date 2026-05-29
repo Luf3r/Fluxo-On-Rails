@@ -57,6 +57,26 @@ RSpec.describe "Authentication", type: :request do
         expect(mail_body).not_to include("Welcome, luiz@example.com")
       end
 
+      it "stores the current locale as the user's preferred email locale" do
+        post user_registration_path(locale: :"pt-BR"),
+          params: sign_up_params(email: "ana.pt@example.com")
+
+        expect(User.find_by!(email: "ana.pt@example.com").preferred_locale).to eq("pt-BR")
+      end
+
+      it "sends confirmation instructions in Portuguese when the registration locale is Portuguese" do
+        ActionMailer::Base.deliveries.clear
+
+        post user_registration_path(locale: :"pt-BR"),
+          params: sign_up_params(name: "Luiz Silva", email: "luiz.pt@example.com")
+
+        mail = ActionMailer::Base.deliveries.last
+        expect(mail.subject).to eq("Instrucoes de confirmacao")
+        expect(mail.body.encoded).to include("Bem-vindo, Luiz Silva")
+        expect(mail.body.encoded).to include("Confirmar minha conta")
+        expect(mail.body.encoded).not_to include("Welcome, Luiz Silva")
+      end
+
       it "sets email_verified_at to nil on creation" do
         post user_registration_path, params: sign_up_params
 
@@ -168,6 +188,18 @@ RSpec.describe "Authentication", type: :request do
       expect(mail_body).not_to include("Hello, #{user.email}")
     end
 
+    it "sends reset password instructions in the user's preferred locale" do
+      user.update!(name: "Luiz Silva", preferred_locale: "pt-BR")
+
+      post user_password_path, params: { user: { email: user.email } }
+
+      mail = ActionMailer::Base.deliveries.last
+      expect(mail.subject).to eq("Instrucoes para redefinir senha")
+      expect(mail.body.encoded).to include("Ola, Luiz Silva")
+      expect(mail.body.encoded).to include("Alterar minha senha")
+      expect(mail.body.encoded).not_to include("Hello, Luiz Silva")
+    end
+
     it "updates the password with a valid reset token" do
       raw_token = user.send_reset_password_instructions
 
@@ -245,12 +277,13 @@ RSpec.describe "Authentication", type: :request do
         user: {
           name: "Ana Atualizada",
           currency: "USD",
+          preferred_locale: "pt-BR",
           current_password: "password123"
         }
       }
 
       expect(response).to redirect_to(root_path)
-      expect(user.reload).to have_attributes(name: "Ana Atualizada", currency: "USD")
+      expect(user.reload).to have_attributes(name: "Ana Atualizada", currency: "USD", preferred_locale: "pt-BR")
     end
 
     it "does not allow account update params to set sensitive fields" do

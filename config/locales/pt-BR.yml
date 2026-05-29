@@ -61,6 +61,20 @@ pt-BR:
       body: "O produto coloca o planejamento no centro: entradas, saidas, metas e prioridades aparecem juntas para transformar acompanhamento financeiro em habito."
       cta: "Criar minha conta"
   auth:
+    locales:
+      en: "Ingles"
+      pt_BR: "Portugues"
+    mailer:
+      confirmation:
+        greeting: "Bem-vindo, %{name}"
+        body: "Voce pode confirmar o email da sua conta Fluxo pelo link abaixo:"
+        cta: "Confirmar minha conta"
+      reset_password:
+        greeting: "Ola, %{name}"
+        body: "Alguem solicitou um link para alterar sua senha do Fluxo. Voce pode fazer isso pelo link abaixo."
+        cta: "Alterar minha senha"
+        ignore: "Se voce nao solicitou isso, ignore este email."
+        no_change: "Sua senha nao sera alterada ate que voce acesse o link acima e crie uma nova."
     links:
       sign_in: "Ja tenho conta"
       sign_up: "Criar conta"
@@ -141,6 +155,7 @@ pt-BR:
         name: "Nome"
         email: "Email"
         currency: "Moeda padrao"
+        preferred_locale: "Idioma dos emails"
         password: "Nova senha"
         password_hint: "Deixe em branco para manter a senha atual."
         password_confirmation: "Confirmar nova senha"
@@ -156,3 +171,4 @@ pt-BR:
         password: "Senha"
         password_confirmation: "Confirmacao de senha"
         currency: "Moeda"
+        preferred_locale: "Idioma dos emails"

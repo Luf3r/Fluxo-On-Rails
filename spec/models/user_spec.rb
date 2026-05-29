@@ -57,6 +57,19 @@ RSpec.describe User, type: :model do
       expect(user.currency).to eq("BRL")
     end
 
+    it "defaults to English as the preferred locale" do
+      user = create(:user)
+
+      expect(user.preferred_locale).to eq("en")
+    end
+
+    it "rejects unsupported preferred locales" do
+      user = build(:user, preferred_locale: "fr")
+
+      expect(user).not_to be_valid
+      expect(user.errors[:preferred_locale]).to be_present
+    end
+
     it "normalizes email case and whitespace through Devise" do
       user = create(:user, email: "  ANA@EXAMPLE.COM  ")
 
