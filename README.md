@@ -76,17 +76,17 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 
 - Rails full-stack scaffold with Hotwire and Tailwind CSS
 - Neon Serverless Postgres for runtime, with local/CI PostgreSQL for tests
-- Devise `User` with `name`, `currency` (validated against ISO 4217: BRL, USD, EUR), `avatar_url` and `email_verified_at` (parity field — Devise confirmable not enabled)
+- Devise `User` with `name`, `currency` (validated against ISO 4217: BRL, USD, EUR), `avatar_url`, email confirmation, and `email_verified_at` parity timestamp
 - Rack::Attack throttles for login and password reset attempts
 - Enforced Content Security Policy for browser responses
-- Home page and Devise authentication entry points
+- Home page and complete Devise authentication entry points: sign in, sign up, password recovery, email confirmation, and account editing
 - Local Mailpit service for development email
 - CI: database migrations, RSpec, RuboCop, Zeitwerk and production asset precompile
 
 **Deferred to future phases:**
 
 - Accounts, transactions, categories, budgets, goals and dashboard
-- OAuth and custom email confirmation flow
+- OAuth
 - PDF reports, CSV import, pagination and search
 - Deployment configuration
 

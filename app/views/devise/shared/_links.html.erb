@@ -10,4 +10,8 @@
   <%- if devise_mapping.recoverable? && controller_name != "passwords" && controller_name != "registrations" %>
     <%= link_to t("auth.links.forgot_password"), new_password_path(resource_name), class: "font-semibold text-emerald-700 transition hover:text-emerald-900" %>
   <% end %>
+
+  <%- if devise_mapping.confirmable? && controller_name != "confirmations" %>
+    <%= link_to t("auth.links.confirmation"), new_confirmation_path(resource_name), class: "font-semibold text-emerald-700 transition hover:text-emerald-900" %>
+  <% end %>
 </div>

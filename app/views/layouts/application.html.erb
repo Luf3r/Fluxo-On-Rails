@@ -40,6 +40,7 @@
 
             <% if user_signed_in? %>
               <span class="hidden text-sm text-zinc-600 sm:inline"><%= t("app.nav.greeting", name: current_user.name.presence || current_user.email) %></span>
+              <%= link_to t("app.nav.account"), edit_user_registration_path, class: "rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-white hover:text-zinc-950" %>
               <%= button_to t("app.nav.sign_out"), destroy_user_session_path, method: :delete, class: "rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-950 hover:bg-white" %>
             <% else %>
               <%= link_to t("app.nav.sign_in"), new_user_session_path, class: "rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-white hover:text-zinc-950" %>

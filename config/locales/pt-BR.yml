@@ -3,6 +3,7 @@ pt-BR:
     name: "Fluxo"
     nav:
       aria_label: "Principal"
+      account: "Conta"
       sign_in: "Entrar"
       sign_up: "Criar conta"
       sign_out: "Sair"
@@ -60,10 +61,25 @@ pt-BR:
       body: "O produto coloca o planejamento no centro: entradas, saidas, metas e prioridades aparecem juntas para transformar acompanhamento financeiro em habito."
       cta: "Criar minha conta"
   auth:
+    locales:
+      en: "Ingles"
+      pt_BR: "Portugues"
+    mailer:
+      confirmation:
+        greeting: "Bem-vindo, %{name}"
+        body: "Voce pode confirmar o email da sua conta Fluxo pelo link abaixo:"
+        cta: "Confirmar minha conta"
+      reset_password:
+        greeting: "Ola, %{name}"
+        body: "Alguem solicitou um link para alterar sua senha do Fluxo. Voce pode fazer isso pelo link abaixo."
+        cta: "Alterar minha senha"
+        ignore: "Se voce nao solicitou isso, ignore este email."
+        no_change: "Sua senha nao sera alterada ate que voce acesse o link acima e crie uma nova."
     links:
       sign_in: "Ja tenho conta"
       sign_up: "Criar conta"
       forgot_password: "Esqueci minha senha"
+      confirmation: "Reenviar confirmacao de email"
     errors:
       heading: "Revise os campos destacados."
     registration:
@@ -114,6 +130,39 @@ pt-BR:
         password_hint: "Minimo de %{count} caracteres."
         password_confirmation: "Confirmar nova senha"
         submit: "Atualizar senha"
+    confirmations:
+      new:
+        title: "Confirmar email - Fluxo"
+        eyebrow: "Confirmacao de email"
+        headline: "Reenviar confirmacao de email"
+        body: "Informe seu email e enviaremos um novo link de confirmacao."
+        email: "Email"
+        submit: "Enviar link de confirmacao"
+    account:
+      title: "Conta - Fluxo"
+      eyebrow: "Conta"
+      headline: "Edite os dados da sua conta."
+      body: "Mantenha perfil, moeda padrao, email e senha alinhados com a forma como voce usa o Fluxo."
+      status_title: "Status da conta"
+      status:
+        email: "Email"
+        confirmation: "Confirmacao de email"
+        confirmed: "Confirmado"
+        pending: "Pendente"
+      form_title: "Configuracoes da conta"
+      form_hint: "Confirme alteracoes com sua senha atual."
+      fields:
+        name: "Nome"
+        email: "Email"
+        currency: "Moeda padrao"
+        preferred_locale: "Idioma dos emails"
+        password: "Nova senha"
+        password_hint: "Deixe em branco para manter a senha atual."
+        password_confirmation: "Confirmar nova senha"
+        password_confirmation_hint: "Obrigatorio apenas ao trocar a senha."
+        current_password: "Senha atual"
+        current_password_hint: "Obrigatoria para proteger alteracoes da conta."
+      submit: "Atualizar conta"
   activerecord:
     attributes:
       user:
@@ -122,3 +171,4 @@ pt-BR:
         password: "Senha"
         password_confirmation: "Confirmacao de senha"
         currency: "Moeda"
+        preferred_locale: "Idioma dos emails"

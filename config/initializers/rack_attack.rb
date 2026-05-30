@@ -2,7 +2,7 @@
 
 class Rack::Attack
   LOGIN_PATH = "/users/sign_in"
-  PASSWORD_RESET_PATH = "/users/password"
+  RESET_ROUTE = "/users/password"
 
   self.cache.store = Rails.env.test? ? ActiveSupport::Cache::MemoryStore.new : Rails.cache
 
@@ -15,11 +15,11 @@ class Rack::Attack
   end
 
   throttle("password_reset/ip", limit: 5, period: 10.minutes) do |request|
-    request.ip if post_to?(request, PASSWORD_RESET_PATH)
+    request.ip if post_to?(request, RESET_ROUTE)
   end
 
   throttle("password_reset/email", limit: 5, period: 10.minutes) do |request|
-    normalized_email(request) if post_to?(request, PASSWORD_RESET_PATH)
+    normalized_email(request) if post_to?(request, RESET_ROUTE)
   end
 
   self.throttled_responder = lambda do |request|
