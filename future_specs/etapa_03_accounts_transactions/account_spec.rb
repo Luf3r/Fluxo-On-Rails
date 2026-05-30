@@ -75,11 +75,18 @@ RSpec.describe Account, type: :model do
       expect(account.current_balance).to eq(1200.00)
     end
 
-    it "does not count transfer transactions in balance" do
+    it "subtracts outgoing transfers and adds incoming transfers to account balances" do
       other = create(:account, user: account.user, initial_balance: 0)
-      create(:transaction, :transfer, :settled, account: account, amount: 200.00)
-      # Transfer debit reduces balance, transfer credit on other account increases it
+      Transfers::Create.new.call(
+        from_account: account,
+        to_account: other,
+        amount: 200.00,
+        date: Date.current,
+        description: "Poupança"
+      )
+
       expect(account.current_balance).to eq(800.00)
+      expect(other.current_balance).to eq(200.00)
     end
   end
 

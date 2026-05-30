@@ -67,12 +67,19 @@ RSpec.describe "Transactions", type: :request do
     end
 
     context "pagination" do
-      before { create_list(:transaction, 30, :income, :settled, account: account) }
+      before do
+        30.times do |index|
+          create(:transaction, :income, :settled,
+                 account: account,
+                 description: "Paginated income #{index + 1}")
+        end
+      end
 
-      it "paginates results" do
+      it "uses Pagy with 25 transactions per page by default" do
         get transactions_path, params: { page: 1 }
         expect(response).to have_http_status(:ok)
-        # Exact count depends on per_page setting, just check it doesn't blow up
+        expect(response.body).to include("Paginated income 25")
+        expect(response.body).not_to include("Paginated income 26")
       end
     end
   end
