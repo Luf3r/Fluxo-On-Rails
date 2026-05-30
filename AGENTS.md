@@ -30,9 +30,15 @@ PostgreSQL can optimize before adding new infrastructure.
 
 ## Verification
 
-`bin/ci` is the canonical local and CI gate. Run it before committing or opening
-a PR when you change behavior, migrations, security-sensitive code, or shared
+`bin/ci` is the checked-in canonical local and CI gate. It runs the test database
+migration, RSpec, RuboCop, gem and importmap vulnerability audits, Brakeman,
+Zeitwerk, and production asset precompile. Run it before committing or opening a
+PR when you change behavior, migrations, security-sensitive code, or shared
 documentation contracts.
+
+If `bin/ci` does not exist in an older branch, partial checkout, or temporary
+workspace, run the focused checks below instead of improvising an unverified
+replacement.
 
 Useful focused checks:
 
@@ -89,10 +95,17 @@ or contributor workflow should update the corresponding README, ADR, roadmap, or
 future spec note in the same branch. Add an ADR for durable decisions rather than
 leaving them implicit in implementation.
 
+If a decision is not covered by existing ADRs or the roadmap, stop and surface
+the open question instead of resolving it implicitly in code.
+
 ## Pull Requests
 
 Base project PRs on `develop` unless the maintainer requests another target.
-Before opening a PR, include:
+AI agents should only push or open PRs when explicitly asked and authenticated
+tooling is available. Otherwise, leave the branch state, suggested base branch,
+and PR summary for a human contributor to apply.
+
+When preparing a PR, include:
 
 - A concise summary of user-visible or architectural changes.
 - The verification commands that were run.
