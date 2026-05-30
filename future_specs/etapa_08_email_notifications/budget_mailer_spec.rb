@@ -3,7 +3,7 @@ require "rails_helper"
 
 RSpec.describe BudgetMailer, type: :mailer do
   let(:user)     { create(:user, email: "user@example.com", name: "Maria") }
-  let(:category) { create(:category, user: user, name: "Alimentação", budget: 1000.00) }
+  let(:category) { create(:category, user: user, name: "Alimentação", budget_amount: 1000.00) }
 
   describe "#alert" do
     let(:mail) { described_class.alert(user, category, 85) }

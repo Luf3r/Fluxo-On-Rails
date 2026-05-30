@@ -2,7 +2,7 @@
 
 These specs describe later Fluxo Rails development stages from the project development order document.
 
-They live outside `spec/` because the current executable setup only includes the Rails foundation, Devise `User`, home page, database setup, and CI plumbing. Keeping them here preserves the project-level contracts without making the current CI red.
+They live outside `spec/` because the current executable setup includes the Rails foundation, Devise `User`, email confirmation, rate limiting, home page, database setup, and CI plumbing. Finance-domain contracts stay here until their stage is promoted. Keeping them here preserves project-level intent without making the current CI red.
 
 Use these files as living product contracts. When starting a stage:
 
@@ -11,7 +11,7 @@ Use these files as living product contracts. When starting a stage:
 3. Tighten placeholder expectations before implementing the feature.
 4. Implement until the promoted specs pass in CI.
 
-Run future specs explicitly when planning a stage:
+Run future specs explicitly when planning a stage. These commands are expected to fail until the target stage's dependencies, factories, routes and implementation have been promoted:
 
 ```bash
 bundle exec rspec future_specs/etapa_03_accounts_transactions
@@ -19,10 +19,10 @@ bundle exec rspec future_specs/etapa_03_accounts_transactions
 
 Stage mapping:
 
-- `etapa_02_authentication`: confirmable auth, password recovery coverage, rate limiting.
-- `etapa_03_accounts_transactions`: accounts, transactions, transfers, balances, CRUD.
-- `etapa_04_categories_tags_filters`: categories, tags, transaction filters.
-- `etapa_05_analytics`: analytics queries and endpoints.
+- `etapa_02_authentication`: already promoted into `spec/`; see `spec/requests/authentication_spec.rb`, `spec/requests/devise_pages_spec.rb`, `spec/requests/rate_limiting_spec.rb` and `spec/models/user_spec.rb`.
+- `etapa_03_accounts_transactions`: accounts, transactions, paired transfer rows, balances, CRUD.
+- `etapa_04_categories_tags_filters`: categories, two-level sub-categories, tags, transaction filters.
+- `etapa_05_analytics`: analytics queries and endpoints that exclude transfer rows from income/expense totals.
 - `etapa_06_recurring_jobs`: recurring transactions and scheduled jobs.
 - `etapa_07_goals`: financial goals, progress, projection.
 - `etapa_08_email_notifications`: budget alerts and digest mailers.
@@ -42,3 +42,11 @@ Promotion checklist:
 - Preserve tenant isolation contracts for every route, report, mailer, background job, and imported foreign key before moving specs into `spec/`.
 - Keep authentication responses indistinguishable where differences would allow user enumeration.
 - Keep each promoted spec aligned with the stage's actual dependencies and gems.
+
+Locked contract decisions:
+
+- Transfers use two paired transaction rows linked by `transfer_pair`; both rows have `transaction_type: "transfer"`. Analytics must exclude transfer rows from income and expense totals with `where.not(transaction_type: :transfer)`.
+- Budgets are a nullable decimal `Category#budget_amount` in the MVP. Introduce a `Budget` model only when monthly history, rollover of unused balance, or shared budgets across categories appear.
+- Category hierarchy has only two levels: parent -> child. Transactions can be assigned only to leaf categories. Sub-category create/update flows require a present, valid `parent_id`.
+- Pagination uses Pagy with 25 transactions per page by default. Search uses a simple case-insensitive `ILIKE` scope for the MVP; do not add Elasticsearch or `pg_search`.
+- PDF generation uses Prawn. PDF content assertions may use `pdftotext` from `poppler-utils`; response-only PDF specs do not need that system dependency.

@@ -4,7 +4,7 @@ require "rails_helper"
 RSpec.describe "Budget alert on transaction", type: :model do
   let(:user)     { create(:user) }
   let(:account)  { create(:account, user: user) }
-  let(:category) { create(:category, user: user, budget: 1000.00) }
+  let(:category) { create(:category, user: user, budget_amount: 1000.00) }
 
   def create_expense(amount)
     create(:transaction, :expense, :settled,
@@ -48,7 +48,7 @@ RSpec.describe "Budget alert on transaction", type: :model do
   end
 
   describe "without budget set" do
-    let(:category_no_budget) { create(:category, user: user, budget: nil) }
+    let(:category_no_budget) { create(:category, user: user, budget_amount: nil) }
 
     it "does not raise and does not enqueue alert" do
       expect {
@@ -71,7 +71,7 @@ RSpec.describe "Budget alert on transaction", type: :model do
     it "does not trigger an alert for another user's category" do
       other_user = create(:user)
       other_account = create(:account, user: other_user)
-      other_category = create(:category, user: other_user, budget: 1000.00)
+      other_category = create(:category, user: other_user, budget_amount: 1000.00)
 
       expect {
         create(:transaction, :expense, :settled,

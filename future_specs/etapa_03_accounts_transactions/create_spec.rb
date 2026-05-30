@@ -23,18 +23,24 @@ RSpec.describe Transfers::Create, type: :service do
       expect { service.call(**valid_attrs) }.to change(Transaction, :count).by(2)
     end
 
-    it "creates a debit (expense) on the source account" do
+    it "creates an outgoing transfer row on the source account" do
       service.call(**valid_attrs)
       debit = from_account.transactions.last
-      expect(debit.transaction_type).to eq("expense")
+      expect(debit.transaction_type).to eq("transfer")
       expect(debit.amount).to eq(300.00)
     end
 
-    it "creates a credit (income) on the destination account" do
+    it "creates an incoming transfer row on the destination account" do
       service.call(**valid_attrs)
       credit = to_account.transactions.last
-      expect(credit.transaction_type).to eq("income")
+      expect(credit.transaction_type).to eq("transfer")
       expect(credit.amount).to eq(300.00)
+    end
+
+    it "does not classify transfers as income or expense" do
+      service.call(**valid_attrs)
+      transfer_rows = [ from_account.transactions.last, to_account.transactions.last ]
+      expect(transfer_rows.map(&:transaction_type)).to eq(%w[transfer transfer])
     end
 
     it "links the two transactions via transfer_pair" do

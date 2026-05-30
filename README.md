@@ -13,7 +13,7 @@
 
 Fluxo is a personal finance platform where users will track income and expenses, manage multiple financial accounts, set budgets per category, define savings goals, and generate analytical reports.
 
-This repository is currently in its **base setup phase**: the Rails foundation is in place, but finance features are not yet implemented. The previous TypeScript monorepo (NestJS + Next.js) serves as a conceptual reference — this app starts fresh from Rails conventions rather than porting the prior architecture.
+This repository is currently in its **foundation and authentication phase**: the Rails base, database setup, Devise flows, rate limiting and CI are in place, but finance features are not yet implemented. The previous TypeScript monorepo (NestJS + Next.js) serves as a conceptual reference — this app starts fresh from Rails conventions rather than porting the prior architecture.
 
 ---
 
@@ -61,10 +61,23 @@ Prefer a pooled Neon connection string for web and worker processes. Keep a dire
 ## Verification
 
 ```bash
+bin/ci
+```
+
+`bin/ci` is the local equivalent of the GitHub Actions pipeline. It runs the test database migration, RSpec, RuboCop, gem and importmap vulnerability audits, Brakeman, Zeitwerk and production asset precompile.
+
+PDF content specs use `pdftotext` from `poppler-utils` when they are promoted into the active suite. PDF generation itself should use Prawn and does not require system packages.
+
+Useful individual checks:
+
+```bash
 RAILS_ENV=test bin/rails db:migrate
 bundle exec rspec
-bundle exec rubocop
-bin/rails zeitwerk:check
+bin/rubocop
+bin/bundler-audit
+bin/importmap audit
+bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+RAILS_ENV=test bin/rails zeitwerk:check
 RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/rails assets:precompile
 ```
 
@@ -81,7 +94,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Enforced Content Security Policy for browser responses
 - Home page and complete Devise authentication entry points: sign in, sign up, password recovery, email confirmation, and account editing
 - Local Mailpit service for development email
-- CI: database migrations, RSpec, RuboCop, Zeitwerk and production asset precompile
+- CI: database migrations, RSpec, RuboCop, vulnerability audits, Brakeman, Zeitwerk and production asset precompile
 
 **Deferred to future phases:**
 
@@ -99,6 +112,12 @@ Key decisions documented under `docs/adr/`:
 | # | Decision | Choice |
 |---|---|---|
 | 0001 | Application architecture | Rails 8.1.3 monolith with Hotwire — avoids SPA complexity without sacrificing interactivity |
+| 0002 | Authenticated domain boundary | Finance-domain controllers inherit authentication and tenant-safe `404 Not Found` defaults |
+| 0003 | Finance domain MVP contracts | Transfers, budgets, categories, pagination/search and PDF testing rules for the finance stages |
+
+Future-stage contracts live in [`future_specs/README.md`](future_specs/README.md). They are planning specs, not part of the green test suite until a stage is promoted into `spec/`.
+
+Contributor workflow is documented in [`CONTRIBUTING.md`](CONTRIBUTING.md). The staged roadmap is in [`docs/roadmap.md`](docs/roadmap.md).
 
 ---
 

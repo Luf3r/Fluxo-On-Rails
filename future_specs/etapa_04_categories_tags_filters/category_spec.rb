@@ -3,11 +3,13 @@ require "rails_helper"
 
 RSpec.describe Category, type: :model do
   it { should belong_to(:user).optional }  # system categories have no user
+  it { should belong_to(:parent).class_name("Category").optional }
   it { should have_many(:transactions) }
-  it { should have_many(:sub_categories).dependent(:destroy) }
+  it { should have_many(:sub_categories).class_name("Category").dependent(:destroy) }
 
   it { should validate_presence_of(:name) }
   it { should validate_inclusion_of(:category_type).in_array(%w[expense income both]) }
+  it { should validate_numericality_of(:budget_amount).is_greater_than_or_equal_to(0).allow_nil }
 
   describe "system categories" do
     it "cannot be destroyed" do
@@ -70,6 +72,45 @@ RSpec.describe Category, type: :model do
     it "rejects duplicate name for same user" do
       create(:category, user: user, name: "Duplicada")
       expect(build(:category, user: user, name: "Duplicada")).not_to be_valid
+    end
+  end
+
+  describe "two-level hierarchy" do
+    let(:user) { create(:user) }
+    let(:parent) { create(:category, user: user, name: "Casa") }
+
+    it "allows one child level under a parent category" do
+      child = create(:category, user: user, parent: parent, name: "Aluguel")
+      expect(parent.sub_categories).to include(child)
+    end
+
+    it "rejects nesting below parent and child" do
+      child = create(:category, user: user, parent: parent, name: "Aluguel")
+      grandchild = build(:category, user: user, parent: child, name: "Contrato")
+
+      expect(grandchild).not_to be_valid
+      expect(grandchild.errors[:parent]).to be_present
+    end
+
+    it "requires sub-category parent to belong to the same user or be a system category" do
+      other_parent = create(:category, user: create(:user), name: "Other private parent")
+      child = build(:category, user: user, parent: other_parent, name: "Invalid child")
+
+      expect(child).not_to be_valid
+      expect(child.errors[:parent]).to be_present
+    end
+
+    it "allows transactions on parent categories that do not have children" do
+      tx = build(:transaction, :expense, account: create(:account, user: user), category: parent)
+      expect(tx).to be_valid
+    end
+
+    it "rejects transactions on categories that have children" do
+      create(:category, user: user, parent: parent, name: "Aluguel")
+      tx = build(:transaction, :expense, account: create(:account, user: user), category: parent)
+
+      expect(tx).not_to be_valid
+      expect(tx.errors[:category]).to be_present
     end
   end
 end
