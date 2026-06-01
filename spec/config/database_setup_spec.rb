@@ -19,4 +19,12 @@ RSpec.describe "database setup" do
     expect(schema).not_to include('create_table "User"')
     expect(schema).not_to include('create_table "_prisma_migrations"')
   end
+
+  it "creates Solid infrastructure tables through primary migrations for shared production databases" do
+    migration_sources = Dir[File.expand_path("../../db/migrate/*.rb", __dir__)].sort.map { |path| File.read(path) }.join("\n")
+
+    expect(migration_sources).to include('create_table :solid_queue_recurring_tasks')
+    expect(migration_sources).to include('create_table :solid_cache_entries')
+    expect(migration_sources).to include('create_table :solid_cable_messages')
+  end
 end
