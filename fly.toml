@@ -2,6 +2,9 @@ app = "fluxo-on-rails"
 primary_region = "gru"
 console_command = "/rails/bin/rails console"
 
+[experimental]
+  swap_size_mb = 512
+
 [build]
   dockerfile = "Dockerfile"
 
