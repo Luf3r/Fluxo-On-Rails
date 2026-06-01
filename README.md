@@ -17,6 +17,15 @@ This repository is currently in its **foundation and authentication phase**: the
 
 ---
 
+## Live Preview
+
+The current production build is available at
+[https://fluxo-on-rails.fly.dev](https://fluxo-on-rails.fly.dev), showing the
+Rails authentication foundation, localized landing page and responsive UI as the
+project works in practice.
+
+---
+
 ## Stack
 
 | Layer | Technology |

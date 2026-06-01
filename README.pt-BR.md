@@ -17,6 +17,15 @@ Este repositório está atualmente na **fase de fundação e autenticação**: a
 
 ---
 
+## Preview em produção
+
+A versão atual em produção está disponível em
+[https://fluxo-on-rails.fly.dev](https://fluxo-on-rails.fly.dev), mostrando na
+prática a fundação Rails de autenticação, a landing page localizada e a UI
+responsiva do projeto.
+
+---
+
 ## Stack
 
 | Camada | Tecnologia |
