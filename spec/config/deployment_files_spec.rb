@@ -12,6 +12,8 @@ RSpec.describe "deployment files" do
     expect(fly_config).to include('primary_region = "gru"')
     expect(fly_config).to include('release_command = "bin/rails db:prepare"')
     expect(fly_config).to include('APP_HOST = "fluxo-on-rails.fly.dev"')
+    expect(fly_config).to include('THRUSTER_HTTP_PORT = "3000"')
+    expect(fly_config).to include('THRUSTER_TARGET_PORT = "3001"')
     expect(fly_config).to include('internal_port = 3000')
     expect(fly_config).to include('force_https = true')
     expect(fly_config).to include('path = "/up"')
