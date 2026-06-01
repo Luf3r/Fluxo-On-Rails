@@ -30,26 +30,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
-      - name: Migrate database
-        run: bin/rails db:migrate
-
-      - name: Run RSpec
-        run: bundle exec rspec
-
-      - name: Run RuboCop
-        run: bin/rubocop -f github
-
-      - name: Check Zeitwerk
-        run: bin/rails zeitwerk:check
-
-      - name: Precompile production assets
-        env:
-          RAILS_ENV: production
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/fluxo_test
-          SECRET_KEY_BASE_DUMMY: 1
-        run: bin/rails assets:precompile
+      - name: Run CI
+        run: bin/ci

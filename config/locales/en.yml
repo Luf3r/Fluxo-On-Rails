@@ -1,31 +1,174 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  app:
+    name: "Fluxo"
+    nav:
+      aria_label: "Primary"
+      account: "Account"
+      sign_in: "Sign in"
+      sign_up: "Create account"
+      sign_out: "Sign out"
+      greeting: "Hi, %{name}"
+    footer:
+      line_one: "Fluxo. Personal finance with more clarity and less improvisation."
+      line_two: "Plan the month, track goals, and make decisions with context."
+  home:
+    title: "Fluxo - personal finance without heavy spreadsheets"
+    hero:
+      eyebrow: "Personal finance with clarity"
+      headline: "Control your money without becoming hostage to spreadsheets."
+      body: "Fluxo organizes income, expenses, accounts, goals, and budgets into a simple routine so you understand the month before it ends."
+      primary_cta: "Start now"
+      secondary_cta: "I already have an account"
+      stats:
+        first_label: "See"
+        first_value: "Your Finances"
+        second_label: "Prioritize"
+        second_value: "Goals"
+        third_label: "Adjust"
+        third_value: "Spending"
+    mockup:
+      projected_balance: "Projected balance"
+      projected_balance_value: "$ 8,420"
+      housing: "Housing"
+      groceries: "Groceries"
+      goals: "Goals"
+    routine:
+      eyebrow: "Routine"
+      headline: "One screen for every important decision."
+      month_title: "See the month"
+      month_body: "Track how much came in, how much went out, and what is still committed before closing the month."
+      plan_title: "Plan without friction"
+      plan_body: "Separate categories, define budgets, and turn goals into visible savings targets."
+    planning:
+      eyebrow: "Planning"
+      headline: "Move beyond loose records and start making decisions with context."
+      items:
+        balance:
+          title: "Balance that makes sense"
+          body: "See what is left after rent, bills, and planned savings, not just the number your bank shows today."
+        categories:
+          title: "Purposeful categories"
+          body: "You spent 32% on housing in April. Was that part of the plan, or does next month need an adjustment?"
+        goals:
+          title: "Visible goals"
+          body: "Track how close you are to an emergency fund, a trip, or paying down debt while still seeing this month's pressure."
+        budget:
+          title: "Practical budgeting"
+          body: "If groceries pass the limit halfway through the month, you see it early enough to change the next purchase."
+    close:
+      eyebrow: "Less anxiety, more direction"
+      headline: "Fluxo is designed for people who want to stop discovering too late where the money went."
+      body: "The product puts planning at the center: income, expenses, goals, and priorities appear together to turn financial tracking into a habit."
+      cta: "Create my account"
+  auth:
+    locales:
+      en: "English"
+      pt_BR: "Portuguese"
+    mailer:
+      confirmation:
+        greeting: "Welcome, %{name}"
+        body: "You can confirm your Fluxo account email through the link below:"
+        cta: "Confirm my account"
+      reset_password:
+        greeting: "Hello, %{name}"
+        body: "Someone requested a link to change your Fluxo password. You can do this through the link below."
+        cta: "Change my password"
+        ignore: "If you did not request this, please ignore this email."
+        no_change: "Your password will not change until you access the link above and create a new one."
+    links:
+      sign_in: "I already have an account"
+      sign_up: "Create account"
+      forgot_password: "I forgot my password"
+      confirmation: "Resend confirmation email"
+    errors:
+      heading: "Review the highlighted fields."
+    registration:
+      title: "Create account - Fluxo"
+      eyebrow: "Start with the basics"
+      headline: "Create your account and set your default currency."
+      body: "Fluxo uses this information to prepare your first financial experience. From here, you organize your month around clearer choices."
+      ready_title: "What starts here"
+      ready_items:
+        account: "An account to centralize your financial organization."
+        currency: "A default currency to keep the month consistent."
+        goals: "A simple starting point to track goals and priorities."
+      form_title: "Create account"
+      form_hint: "Use a valid email and a password with at least %{count} characters."
+      fields:
+        name: "Name"
+        email: "Email"
+        currency: "Default currency"
+        password: "Password"
+        password_confirmation: "Confirm password"
+      submit: "Create my account"
+    session:
+      title: "Sign in - Fluxo"
+      eyebrow: "Welcome back"
+      headline: "Sign in to keep tracking your financial flow."
+      body: "Access your account to resume organizing income, expenses, and goals in one place."
+      form_title: "Sign in"
+      form_hint: "Use the email and password registered in Fluxo."
+      fields:
+        email: "Email"
+        password: "Password"
+        remember_me: "Remember me"
+      submit: "Sign in"
+    passwords:
+      new:
+        title: "Recover password - Fluxo"
+        eyebrow: "Access"
+        headline: "Recover password"
+        body: "Enter your email and we will send instructions to reset your password."
+        email: "Email"
+        submit: "Send instructions"
+      edit:
+        title: "New password - Fluxo"
+        eyebrow: "Security"
+        headline: "Set a new password"
+        body: "Choose a new password to recover access to your account."
+        password: "New password"
+        password_hint: "Minimum of %{count} characters."
+        password_confirmation: "Confirm new password"
+        submit: "Update password"
+    confirmations:
+      new:
+        title: "Confirm email - Fluxo"
+        eyebrow: "Email confirmation"
+        headline: "Resend confirmation email"
+        body: "Enter your email and we will send a new confirmation link."
+        email: "Email"
+        submit: "Send confirmation link"
+    account:
+      title: "Account - Fluxo"
+      eyebrow: "Account"
+      headline: "Edit your account details."
+      body: "Keep your profile, default currency, email, and password aligned with how you use Fluxo."
+      status_title: "Account status"
+      status:
+        email: "Email"
+        confirmation: "Email confirmation"
+        confirmed: "Confirmed"
+        pending: "Pending"
+      form_title: "Account settings"
+      form_hint: "Confirm changes with your current password."
+      fields:
+        name: "Name"
+        email: "Email"
+        currency: "Default currency"
+        preferred_locale: "Email language"
+        password: "New password"
+        password_hint: "Leave blank to keep the current password."
+        password_confirmation: "Confirm new password"
+        password_confirmation_hint: "Required only when changing password."
+        current_password: "Current password"
+        current_password_hint: "Required to protect account changes."
+      submit: "Update account"
+  activerecord:
+    attributes:
+      user:
+        name: "Name"
+        email: "Email"
+        password: "Password"
+        password_confirmation: "Password confirmation"
+        currency: "Currency"
+        preferred_locale: "Email language"

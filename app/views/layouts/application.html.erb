@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Fluxo Rails" %></title>
+    <title><%= content_for(:title) || t("app.name") %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Fluxo Rails">
+    <meta name="application-name" content="<%= t("app.name") %>">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -23,15 +23,51 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-zinc-50 text-zinc-950">
-    <main class="container mx-auto px-5">
-      <% if notice.present? %>
-        <p class="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900"><%= notice %></p>
-      <% end %>
-      <% if alert.present? %>
-        <p class="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"><%= alert %></p>
-      <% end %>
-      <%= yield %>
-    </main>
+  <body class="min-h-dvh bg-[#f7f8f6] text-zinc-950 antialiased">
+    <div class="flex min-h-dvh flex-col">
+      <header class="sticky top-0 z-20 border-b border-zinc-200/80 bg-[#f7f8f6]/90 backdrop-blur">
+        <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8" aria-label="<%= t("app.nav.aria_label") %>">
+          <%= link_to root_path, class: "flex items-center gap-3" do %>
+            <span class="grid size-9 place-items-center rounded-xl bg-zinc-950 text-sm font-black text-white">F</span>
+            <span class="text-base font-semibold tracking-tight"><%= t("app.name") %></span>
+          <% end %>
+
+          <div class="flex items-center gap-2">
+            <div class="hidden items-center gap-1 rounded-full border border-zinc-200 bg-white/70 p-1 text-xs font-bold text-zinc-500 sm:flex">
+              <%= link_to "PT", url_for(locale: :"pt-BR"), class: "rounded-full px-2 py-1 transition #{I18n.locale == :"pt-BR" ? "bg-zinc-950 text-white" : "hover:text-zinc-950"}" %>
+              <%= link_to "EN", url_for(locale: nil), class: "rounded-full px-2 py-1 transition #{I18n.locale == :en ? "bg-zinc-950 text-white" : "hover:text-zinc-950"}" %>
+            </div>
+
+            <% if user_signed_in? %>
+              <span class="hidden text-sm text-zinc-600 sm:inline"><%= t("app.nav.greeting", name: current_user.name.presence || current_user.email) %></span>
+              <%= link_to t("app.nav.account"), edit_user_registration_path, class: "rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-white hover:text-zinc-950" %>
+              <%= button_to t("app.nav.sign_out"), destroy_user_session_path, method: :delete, class: "rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-950 hover:bg-white" %>
+            <% else %>
+              <%= link_to t("app.nav.sign_in"), new_user_session_path, class: "rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-white hover:text-zinc-950" %>
+              <%= link_to t("app.nav.sign_up"), new_user_registration_path, class: "rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-zinc-950/10 transition hover:bg-emerald-700" %>
+            <% end %>
+          </div>
+        </nav>
+      </header>
+
+      <main class="flex-1">
+        <div class="mx-auto max-w-7xl px-5 lg:px-8">
+          <% if notice.present? %>
+            <p class="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900"><%= notice %></p>
+          <% end %>
+          <% if alert.present? %>
+            <p class="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"><%= alert %></p>
+          <% end %>
+        </div>
+        <%= yield %>
+      </main>
+
+      <footer class="border-t border-zinc-200/80">
+        <div class="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-8 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+          <p><%= t("app.footer.line_one") %></p>
+          <p><%= t("app.footer.line_two") %></p>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>

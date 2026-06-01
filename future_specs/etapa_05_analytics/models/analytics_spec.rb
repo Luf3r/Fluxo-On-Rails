@@ -50,6 +50,13 @@ RSpec.describe Analytics, type: :model do
       expect(summary[:income]).to eq(6000)
     end
 
+    it "excludes transfers from income and expense totals" do
+      create_tx(type: :transfer, amount: 9999, date: Date.current)
+      summary = Analytics.monthly_summary(user)
+      expect(summary[:income]).to eq(6000)
+      expect(summary[:expense]).to eq(2500)
+    end
+
     it "respects a custom period" do
       period = 2.months.ago.all_month
       summary = Analytics.monthly_summary(user, period)
@@ -101,6 +108,14 @@ RSpec.describe Analytics, type: :model do
       result = Analytics.by_category(user)
       expect(result.map { |r| r[:name] }).not_to include("Private Other Category")
       expect(result.map { |r| r[:total] }).not_to include(99_999)
+    end
+
+    it "excludes transfer rows from category spending totals" do
+      create_tx(type: :transfer, amount: 9999, category: food)
+
+      result = Analytics.by_category(user)
+      food_row = result.find { |r| r[:name] == "Alimentação" }
+      expect(food_row[:total]).to eq(800)
     end
   end
 
@@ -170,6 +185,14 @@ RSpec.describe Analytics, type: :model do
       result = Analytics.top_expenses(user)
       expect(result.map { |r| r[:amount] }).not_to include(99_999)
       expect(result.map { |r| r[:description] }).not_to include("Private Other Expense")
+    end
+
+    it "excludes transfers from top expenses" do
+      create_tx(type: :transfer, amount: 99_999, description: "Account transfer")
+
+      result = Analytics.top_expenses(user)
+      expect(result.map { |r| r[:description] }).not_to include("Account transfer")
+      expect(result.map { |r| r[:amount] }).not_to include(99_999)
     end
   end
 

@@ -115,6 +115,17 @@ RSpec.describe Transaction, type: :model do
         expect(Transaction.current_month).not_to include(last_month)
       end
     end
+
+    describe "analytics filtering" do
+      let!(:income_tx) { create(:transaction, :income, :settled, account: account, amount: 100.00) }
+      let!(:transfer_tx) { create(:transaction, :transfer, :settled, account: account, amount: 999.00) }
+
+      it "lets analytics exclude transfer rows from income and expense totals" do
+        analytics_scope = Transaction.settled.where.not(transaction_type: :transfer)
+        expect(analytics_scope).to include(income_tx)
+        expect(analytics_scope).not_to include(transfer_tx)
+      end
+    end
   end
 
   # ── Cache invalidation ───────────────────────────────────────────────────

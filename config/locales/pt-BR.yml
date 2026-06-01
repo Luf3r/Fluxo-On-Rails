@@ -1,0 +1,174 @@
+pt-BR:
+  app:
+    name: "Fluxo"
+    nav:
+      aria_label: "Principal"
+      account: "Conta"
+      sign_in: "Entrar"
+      sign_up: "Criar conta"
+      sign_out: "Sair"
+      greeting: "Ola, %{name}"
+    footer:
+      line_one: "Fluxo. Financas pessoais com mais clareza e menos improviso."
+      line_two: "Planeje o mes, acompanhe metas e tome decisoes com contexto."
+  home:
+    title: "Fluxo - financas pessoais sem planilha pesada"
+    hero:
+      eyebrow: "Financas pessoais com clareza"
+      headline: "Controle seu dinheiro sem virar refem de planilhas."
+      body: "Fluxo organiza receitas, despesas, contas, metas e orcamentos em uma rotina simples para voce entender o mes antes que ele acabe."
+      primary_cta: "Comecar agora"
+      secondary_cta: "Ja tenho conta"
+      stats:
+        first_label: "Veja"
+        first_value: "Suas Financas"
+        second_label: "Priorize"
+        second_value: "Metas"
+        third_label: "Ajuste"
+        third_value: "Gastos"
+    mockup:
+      projected_balance: "Saldo projetado"
+      projected_balance_value: "R$ 8.420"
+      housing: "Moradia"
+      groceries: "Mercado"
+      goals: "Metas"
+    routine:
+      eyebrow: "Rotina"
+      headline: "Uma tela para cada decisao importante."
+      month_title: "Veja o mes"
+      month_body: "Acompanhe quanto entrou, quanto saiu e o que ainda esta comprometido antes do fechamento."
+      plan_title: "Planeje sem friccao"
+      plan_body: "Separe categorias, defina orcamentos e transforme objetivos em metas de economia visiveis."
+    planning:
+      eyebrow: "Planejamento"
+      headline: "Saia do registro solto e comece a tomar decisoes com contexto."
+      items:
+        balance:
+          title: "Saldo que faz sentido"
+          body: "Veja o que sobra depois de aluguel, contas e economia planejada, nao apenas o numero que o banco mostra hoje."
+        categories:
+          title: "Categorias com proposito"
+          body: "Voce gastou 32% em moradia em abril. Isso estava no plano, ou o proximo mes precisa de ajuste?"
+        goals:
+          title: "Metas visiveis"
+          body: "Acompanhe reserva de emergencia, viagem ou quitacao de divida sem perder a pressao do mes atual."
+        budget:
+          title: "Orcamento pratico"
+          body: "Se o mercado passa do limite na metade do mes, voce ve cedo o suficiente para mudar a proxima compra."
+    close:
+      eyebrow: "Menos ansiedade, mais direcao"
+      headline: "Fluxo foi pensado para quem quer parar de descobrir tarde demais para onde o dinheiro foi."
+      body: "O produto coloca o planejamento no centro: entradas, saidas, metas e prioridades aparecem juntas para transformar acompanhamento financeiro em habito."
+      cta: "Criar minha conta"
+  auth:
+    locales:
+      en: "Ingles"
+      pt_BR: "Portugues"
+    mailer:
+      confirmation:
+        greeting: "Bem-vindo, %{name}"
+        body: "Voce pode confirmar o email da sua conta Fluxo pelo link abaixo:"
+        cta: "Confirmar minha conta"
+      reset_password:
+        greeting: "Ola, %{name}"
+        body: "Alguem solicitou um link para alterar sua senha do Fluxo. Voce pode fazer isso pelo link abaixo."
+        cta: "Alterar minha senha"
+        ignore: "Se voce nao solicitou isso, ignore este email."
+        no_change: "Sua senha nao sera alterada ate que voce acesse o link acima e crie uma nova."
+    links:
+      sign_in: "Ja tenho conta"
+      sign_up: "Criar conta"
+      forgot_password: "Esqueci minha senha"
+      confirmation: "Reenviar confirmacao de email"
+    errors:
+      heading: "Revise os campos destacados."
+    registration:
+      title: "Criar conta - Fluxo"
+      eyebrow: "Comece pelo basico"
+      headline: "Crie sua conta e defina sua moeda padrao."
+      body: "O Fluxo usa esses dados para preparar sua experiencia financeira inicial. A partir daqui, voce organiza seu mes em torno de escolhas mais claras."
+      ready_title: "O que comeca aqui"
+      ready_items:
+        account: "Uma conta para centralizar sua organizacao financeira."
+        currency: "Moeda padrao para deixar a leitura do mes consistente."
+        goals: "Um ponto de partida simples para acompanhar metas e prioridades."
+      form_title: "Criar conta"
+      form_hint: "Use um email valido e uma senha com pelo menos %{count} caracteres."
+      fields:
+        name: "Nome"
+        email: "Email"
+        currency: "Moeda padrao"
+        password: "Senha"
+        password_confirmation: "Confirmar senha"
+      submit: "Criar minha conta"
+    session:
+      title: "Entrar - Fluxo"
+      eyebrow: "Bem-vindo de volta"
+      headline: "Entre para continuar acompanhando seu fluxo financeiro."
+      body: "Acesse sua conta para retomar a organizacao de receitas, despesas e metas em um lugar so."
+      form_title: "Entrar"
+      form_hint: "Use o email e a senha cadastrados no Fluxo."
+      fields:
+        email: "Email"
+        password: "Senha"
+        remember_me: "Lembrar de mim"
+      submit: "Entrar"
+    passwords:
+      new:
+        title: "Recuperar senha - Fluxo"
+        eyebrow: "Acesso"
+        headline: "Recuperar senha"
+        body: "Informe seu email e enviaremos as instrucoes para redefinir sua senha."
+        email: "Email"
+        submit: "Enviar instrucoes"
+      edit:
+        title: "Nova senha - Fluxo"
+        eyebrow: "Seguranca"
+        headline: "Definir nova senha"
+        body: "Escolha uma senha nova para recuperar o acesso a sua conta."
+        password: "Nova senha"
+        password_hint: "Minimo de %{count} caracteres."
+        password_confirmation: "Confirmar nova senha"
+        submit: "Atualizar senha"
+    confirmations:
+      new:
+        title: "Confirmar email - Fluxo"
+        eyebrow: "Confirmacao de email"
+        headline: "Reenviar confirmacao de email"
+        body: "Informe seu email e enviaremos um novo link de confirmacao."
+        email: "Email"
+        submit: "Enviar link de confirmacao"
+    account:
+      title: "Conta - Fluxo"
+      eyebrow: "Conta"
+      headline: "Edite os dados da sua conta."
+      body: "Mantenha perfil, moeda padrao, email e senha alinhados com a forma como voce usa o Fluxo."
+      status_title: "Status da conta"
+      status:
+        email: "Email"
+        confirmation: "Confirmacao de email"
+        confirmed: "Confirmado"
+        pending: "Pendente"
+      form_title: "Configuracoes da conta"
+      form_hint: "Confirme alteracoes com sua senha atual."
+      fields:
+        name: "Nome"
+        email: "Email"
+        currency: "Moeda padrao"
+        preferred_locale: "Idioma dos emails"
+        password: "Nova senha"
+        password_hint: "Deixe em branco para manter a senha atual."
+        password_confirmation: "Confirmar nova senha"
+        password_confirmation_hint: "Obrigatorio apenas ao trocar a senha."
+        current_password: "Senha atual"
+        current_password_hint: "Obrigatoria para proteger alteracoes da conta."
+      submit: "Atualizar conta"
+  activerecord:
+    attributes:
+      user:
+        name: "Nome"
+        email: "Email"
+        password: "Senha"
+        password_confirmation: "Confirmacao de senha"
+        currency: "Moeda"
+        preferred_locale: "Idioma dos emails"

@@ -9,6 +9,16 @@ RSpec.describe "Rate limiting", type: :request do
   end
 
   describe "POST /users/sign_in" do
+    it "allows the first five failed attempts" do
+      5.times do
+        post user_session_path,
+          params: { user: { email: user.email, password: "wrong-password" } },
+          headers: { "REMOTE_ADDR" => "1.2.3.4" }
+
+        expect(response).not_to have_http_status(:too_many_requests)
+      end
+    end
+
     it "blocks the sixth failed login attempt from the same IP" do
       6.times do
         post user_session_path,
@@ -18,6 +28,28 @@ RSpec.describe "Rate limiting", type: :request do
 
       expect(response).to have_http_status(:too_many_requests)
       expect(response.headers["Retry-After"]).to be_present
+    end
+
+    it "succeeds with correct credentials on the first attempt" do
+      post user_session_path, params: {
+        user: { email: user.email, password: "password123" }
+      }
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "allows valid credentials from a different IP before the email limit is reached" do
+      5.times do
+        post user_session_path,
+          params: { user: { email: user.email, password: "wrong-password" } },
+          headers: { "REMOTE_ADDR" => "1.2.3.4" }
+      end
+
+      post user_session_path,
+        params: { user: { email: user.email, password: "password123" } },
+        headers: { "REMOTE_ADDR" => "5.6.7.8" }
+
+      expect(response).to redirect_to(root_path)
     end
 
     it "allows login attempts from different IPs independently" do

@@ -13,7 +13,7 @@
 
 Fluxo is a personal finance platform where users will track income and expenses, manage multiple financial accounts, set budgets per category, define savings goals, and generate analytical reports.
 
-This repository is currently in its **base setup phase**: the Rails foundation is in place, but finance features are not yet implemented. The previous TypeScript monorepo (NestJS + Next.js) serves as a conceptual reference — this app starts fresh from Rails conventions rather than porting the prior architecture.
+This repository is currently in its **foundation and authentication phase**: the Rails base, database setup, Devise flows, rate limiting and CI are in place, but finance features are not yet implemented. The previous TypeScript monorepo (NestJS + Next.js) serves as a conceptual reference — this app starts fresh from Rails conventions rather than porting the prior architecture.
 
 ---
 
@@ -31,6 +31,7 @@ This repository is currently in its **base setup phase**: the Rails foundation i
 | Testing | RSpec · FactoryBot · Capybara |
 | Linting | RuboCop Rails Omakase |
 | Local services | Docker Compose (PostgreSQL for tests · Mailpit) |
+| Deployment | Fly.io app `fluxo-on-rails` in `gru`, backed by Neon |
 
 ---
 
@@ -58,13 +59,47 @@ Prefer a pooled Neon connection string for web and worker processes. Keep a dire
 
 ---
 
+## Deployment
+
+The first production target is Fly.io, backed by Neon through `DATABASE_URL`.
+The deployment contract is versioned in `Dockerfile` and `fly.toml`; durable
+decisions and operational details are documented in
+[`docs/adr/0004-flyio-first-deploy.md`](docs/adr/0004-flyio-first-deploy.md).
+
+Production runtime secrets are configured in the deploy platform, not in this
+repository. Required secrets include `RAILS_MASTER_KEY`, `DATABASE_URL` and SMTP
+credentials when transactional email is enabled.
+
+SMTP is optional for the first deploy. When it is not configured, outbound email
+delivery stays disabled; once transactional email is needed, configure an SMTP
+provider and a verified `MAILER_FROM` sender.
+
+Active Storage intentionally remains on the local disk service for the first
+deploy. Configure object storage before accepting persistent user uploads in
+production.
+
+---
+
 ## Verification
+
+```bash
+bin/ci
+```
+
+`bin/ci` is the local equivalent of the GitHub Actions pipeline. It runs the test database migration, RSpec, RuboCop, gem and importmap vulnerability audits, Brakeman, Zeitwerk and production asset precompile.
+
+PDF content specs use `pdftotext` from `poppler-utils` when they are promoted into the active suite. PDF generation itself should use Prawn and does not require system packages.
+
+Useful individual checks:
 
 ```bash
 RAILS_ENV=test bin/rails db:migrate
 bundle exec rspec
-bundle exec rubocop
-bin/rails zeitwerk:check
+bin/rubocop
+bin/bundler-audit
+bin/importmap audit
+bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
+RAILS_ENV=test bin/rails zeitwerk:check
 RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/rails assets:precompile
 ```
 
@@ -76,19 +111,19 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 
 - Rails full-stack scaffold with Hotwire and Tailwind CSS
 - Neon Serverless Postgres for runtime, with local/CI PostgreSQL for tests
-- Devise `User` with `name`, `currency` (validated against ISO 4217: BRL, USD, EUR), `avatar_url` and `email_verified_at` (parity field — Devise confirmable not enabled)
+- Devise `User` with `name`, `currency` (validated against ISO 4217: BRL, USD, EUR), `avatar_url`, email confirmation, and `email_verified_at` parity timestamp
 - Rack::Attack throttles for login and password reset attempts
 - Enforced Content Security Policy for browser responses
-- Home page and Devise authentication entry points
+- Home page and complete Devise authentication entry points: sign in, sign up, password recovery, email confirmation, and account editing
 - Local Mailpit service for development email
-- CI: database migrations, RSpec, RuboCop, Zeitwerk and production asset precompile
+- Fly.io deployment configuration with Docker, `/up` health checks and release migrations
+- CI: database migrations, RSpec, RuboCop, vulnerability audits, Brakeman, Zeitwerk and production asset precompile
 
 **Deferred to future phases:**
 
 - Accounts, transactions, categories, budgets, goals and dashboard
-- OAuth and custom email confirmation flow
+- OAuth
 - PDF reports, CSV import, pagination and search
-- Deployment configuration
 
 ---
 
@@ -99,6 +134,12 @@ Key decisions documented under `docs/adr/`:
 | # | Decision | Choice |
 |---|---|---|
 | 0001 | Application architecture | Rails 8.1.3 monolith with Hotwire — avoids SPA complexity without sacrificing interactivity |
+| 0002 | Authenticated domain boundary | Finance-domain controllers inherit authentication and tenant-safe `404 Not Found` defaults |
+| 0003 | Finance domain MVP contracts | Transfers, budgets, categories, pagination/search and PDF testing rules for the finance stages |
+
+Future-stage contracts live in [`future_specs/README.md`](future_specs/README.md). They are planning specs, not part of the green test suite until a stage is promoted into `spec/`.
+
+Contributor workflow is documented in [`CONTRIBUTING.md`](CONTRIBUTING.md). The staged roadmap is in [`docs/roadmap.md`](docs/roadmap.md).
 
 ---
 
