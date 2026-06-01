@@ -22,6 +22,12 @@ Deploy through the checked-in Dockerfile and `fly.toml`. Fly runs
 Machines receive traffic. The web process starts through Thruster and Puma, and
 Solid Queue runs inside Puma for the first cut via `SOLID_QUEUE_IN_PUMA=true`.
 
+GitHub Actions owns continuous deployment after the checked-in `CI` workflow
+passes: `develop` deploys the staging Fly app and `main` deploys the production
+Fly app. Both deployment jobs verify `/up` after `flyctl deploy` completes.
+Production can require a manual approval through GitHub Environment protection
+rules without changing the repository workflow.
+
 Keep Neon as the production database through Fly secrets. Use a pooled
 `DATABASE_URL` for the app and optional `CACHE_DATABASE_URL`,
 `QUEUE_DATABASE_URL` and `CABLE_DATABASE_URL` only if separate Neon databases
