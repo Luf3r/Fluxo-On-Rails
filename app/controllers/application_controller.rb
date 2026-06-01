@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
-  # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
-  allow_browser versions: :modern
+  # Keep legacy Internet Explorer out without blocking mobile device emulators that
+  # report old Chrome versions while running on a modern browser engine.
+  allow_browser versions: { ie: false }
 
   around_action :switch_locale
   before_action :assign_registration_locale, if: :devise_registration_create?

@@ -22,6 +22,29 @@ RSpec.describe "Home", type: :request do
     expect(response.body).to include("Control your money")
   end
 
+  it "renders the mobile navigation and footer affordances" do
+    get root_path(locale: :"pt-BR")
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("aria-label=\"Idioma\"")
+    expect(response.body).to include("Abrir menu")
+    expect(response.body).to include("Como funciona")
+    expect(response.body).to include("Planejamento")
+    expect(response.body).to include("Clareza para decidir melhor todos os meses.")
+  end
+
+  it "loads the root page for Android 7 mobile device emulation" do
+    get root_path(locale: :"pt-BR"), headers: {
+      "User-Agent" => "Mozilla/5.0 (Linux; Android 7.0; SAMSUNG SM-N960U Build/NRD90M) " \
+        "AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/7.4 " \
+        "Chrome/59.0.3071.125 Mobile Safari/537.36"
+    }
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Controle seu dinheiro")
+    expect(response.body).not_to include("Your browser is not supported")
+  end
+
   it "sends a restrictive content security policy" do
     get root_path
 

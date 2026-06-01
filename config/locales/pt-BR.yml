@@ -8,9 +8,19 @@ pt-BR:
       sign_up: "Criar conta"
       sign_out: "Sair"
       greeting: "Ola, %{name}"
+      language: "Idioma"
+      mobile_menu: "Abrir menu"
     footer:
       line_one: "Fluxo. Financas pessoais com mais clareza e menos improviso."
       line_two: "Planeje o mes, acompanhe metas e tome decisoes com contexto."
+      product: "Produto"
+      home: "Inicio"
+      how_it_works: "Como funciona"
+      planning: "Planejamento"
+      account: "Conta"
+      language: "Idioma"
+      copyright: "%{year} Fluxo. Feito para organizar o mes com menos ruido."
+      status: "Clareza para decidir melhor todos os meses."
   home:
     title: "Fluxo - financas pessoais sem planilha pesada"
     hero:
