@@ -1,0 +1,94 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [develop, main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Environment to deploy"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.event.workflow_run.head_branch || inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  staging:
+    name: Deploy staging
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'develop') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target == 'staging')
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      FLY_APP_NAME: ${{ vars.FLY_STAGING_APP }}
+      DEPLOY_URL: ${{ vars.STAGING_APP_URL }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set up flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        run: |
+          app_name="${FLY_APP_NAME:-fluxo-on-rails-staging}"
+          flyctl deploy --remote-only --config fly.toml --app "$app_name"
+
+      - name: Verify health check
+        run: |
+          app_name="${FLY_APP_NAME:-fluxo-on-rails-staging}"
+          deploy_url="${DEPLOY_URL:-https://${app_name}.fly.dev}"
+          curl --fail --show-error --silent --max-time 20 \
+            --retry 10 --retry-delay 6 --retry-all-errors \
+            "$deploy_url/up" >/dev/null
+
+  production:
+    name: Deploy production
+    if: >-
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main') ||
+      (github.event_name == 'workflow_dispatch' && inputs.target == 'production')
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      FLY_APP_NAME: ${{ vars.FLY_PRODUCTION_APP }}
+      DEPLOY_URL: ${{ vars.PRODUCTION_APP_URL }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set up flyctl
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        run: |
+          app_name="${FLY_APP_NAME:-fluxo-on-rails}"
+          flyctl deploy --remote-only --config fly.toml --app "$app_name"
+
+      - name: Verify health check
+        run: |
+          app_name="${FLY_APP_NAME:-fluxo-on-rails}"
+          deploy_url="${DEPLOY_URL:-https://${app_name}.fly.dev}"
+          curl --fail --show-error --silent --max-time 20 \
+            --retry 10 --retry-delay 6 --retry-all-errors \
+            "$deploy_url/up" >/dev/null

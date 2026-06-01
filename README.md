@@ -78,6 +78,16 @@ Active Storage intentionally remains on the local disk service for the first
 deploy. Configure object storage before accepting persistent user uploads in
 production.
 
+Continuous deployment runs through GitHub Actions after the `CI` workflow
+passes. Pushes to `develop` deploy to the `staging` environment, defaulting to
+the Fly app `fluxo-on-rails-staging`; pushes to `main` deploy to the
+`production` environment, defaulting to `fluxo-on-rails`. Configure
+`FLY_API_TOKEN` as a GitHub secret and override app names or health-check URLs
+with GitHub Actions variables `FLY_STAGING_APP`, `STAGING_APP_URL`,
+`FLY_PRODUCTION_APP` and `PRODUCTION_APP_URL` when needed. Production can be
+held behind a manual approval by enabling required reviewers on the GitHub
+`production` environment.
+
 ---
 
 ## Verification
@@ -118,6 +128,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Local Mailpit service for development email
 - Fly.io deployment configuration with Docker, `/up` health checks and release migrations
 - CI: database migrations, RSpec, RuboCop, vulnerability audits, Brakeman, Zeitwerk and production asset precompile
+- CD: Fly.io staging deploys from `develop`, production deploys from `main`, and post-deploy `/up` checks
 
 **Deferred to future phases:**
 
