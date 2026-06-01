@@ -16,6 +16,8 @@ console_command = "/rails/bin/rails console"
   RAILS_LOG_LEVEL = "info"
   RAILS_SERVE_STATIC_FILES = "true"
   SOLID_QUEUE_IN_PUMA = "true"
+  THRUSTER_HTTP_PORT = "3000"
+  THRUSTER_TARGET_PORT = "3001"
 
 [http_service]
   internal_port = 3000
