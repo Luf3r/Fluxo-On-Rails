@@ -11,6 +11,7 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Rack::Attack throttling
 - CSP and security checks
 - Local and CI verification through `bin/ci`
+- Fly.io deployment configuration backed by Neon
 
 ## Next Stages
 
@@ -20,7 +21,7 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 4. Recurring transactions and scheduled jobs
 5. Goals, budget alerts and digest emails
 6. CSV import and monthly PDF reports
-7. Hotwire UI polish, deployment and release documentation
+7. Hotwire UI polish and release hardening
 
 ## Locked Decisions
 
@@ -36,10 +37,12 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Transaction pagination uses Pagy with 25 items per page.
 - MVP search uses `ILIKE`; no Elasticsearch or `pg_search`.
 - PDF generation uses Prawn; text assertions use `pdftotext` only in tests.
+- First production deploy targets Fly.io app `fluxo-on-rails` in `gru`, with
+  Neon remaining the production database through `DATABASE_URL`.
 
 ## Open Product Questions
 
 - OAuth provider order and account-linking rules.
-- Deployment target and runtime secret management.
+- Custom domain and persistent object storage provider for production uploads.
 - Whether CSV import should become asynchronous for large files after MVP.
 - Whether budget alerts should support per-user notification preferences.

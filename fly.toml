@@ -1,0 +1,37 @@
+app = "fluxo-on-rails"
+primary_region = "gru"
+console_command = "/rails/bin/rails console"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[deploy]
+  release_command = "bin/rails db:prepare"
+
+[env]
+  APP_HOST = "fluxo-on-rails.fly.dev"
+  APP_PROTOCOL = "https"
+  APP_URL = "https://fluxo-on-rails.fly.dev"
+  RAILS_ENV = "production"
+  RAILS_LOG_LEVEL = "info"
+  RAILS_SERVE_STATIC_FILES = "true"
+  SOLID_QUEUE_IN_PUMA = "true"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 200
+    hard_limit = 250
+
+  [[http_service.checks]]
+    grace_period = "20s"
+    interval = "15s"
+    method = "GET"
+    path = "/up"
+    timeout = "2s"

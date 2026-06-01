@@ -31,6 +31,7 @@ This repository is currently in its **foundation and authentication phase**: the
 | Testing | RSpec · FactoryBot · Capybara |
 | Linting | RuboCop Rails Omakase |
 | Local services | Docker Compose (PostgreSQL for tests · Mailpit) |
+| Deployment | Fly.io app `fluxo-on-rails` in `gru`, backed by Neon |
 
 ---
 
@@ -55,6 +56,27 @@ Docker Compose starts PostgreSQL for local tests and Mailpit for development ema
 `dotenv-rails` loads `.env` in development and test. Deployed environments should provide credentials through their runtime secret configuration.
 
 Prefer a pooled Neon connection string for web and worker processes. Keep a direct URL available for migration or release commands if your deploy platform requires it. Solid Queue, Solid Cache and Solid Cable share `DATABASE_URL` in production unless `QUEUE_DATABASE_URL`, `CACHE_DATABASE_URL` or `CABLE_DATABASE_URL` are set separately.
+
+---
+
+## Deployment
+
+The first production target is Fly.io, backed by Neon through `DATABASE_URL`.
+The deployment contract is versioned in `Dockerfile` and `fly.toml`; durable
+decisions and operational details are documented in
+[`docs/adr/0004-flyio-first-deploy.md`](docs/adr/0004-flyio-first-deploy.md).
+
+Production runtime secrets are configured in the deploy platform, not in this
+repository. Required secrets include `RAILS_MASTER_KEY`, `DATABASE_URL` and SMTP
+credentials when transactional email is enabled.
+
+SMTP is optional for the first deploy. When it is not configured, outbound email
+delivery stays disabled; once transactional email is needed, configure an SMTP
+provider and a verified `MAILER_FROM` sender.
+
+Active Storage intentionally remains on the local disk service for the first
+deploy. Configure object storage before accepting persistent user uploads in
+production.
 
 ---
 
@@ -94,6 +116,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Enforced Content Security Policy for browser responses
 - Home page and complete Devise authentication entry points: sign in, sign up, password recovery, email confirmation, and account editing
 - Local Mailpit service for development email
+- Fly.io deployment configuration with Docker, `/up` health checks and release migrations
 - CI: database migrations, RSpec, RuboCop, vulnerability audits, Brakeman, Zeitwerk and production asset precompile
 
 **Deferred to future phases:**
@@ -101,7 +124,6 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Accounts, transactions, categories, budgets, goals and dashboard
 - OAuth
 - PDF reports, CSV import, pagination and search
-- Deployment configuration
 
 ---
 

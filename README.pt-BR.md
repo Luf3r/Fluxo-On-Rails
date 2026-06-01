@@ -31,6 +31,7 @@ Este repositório está atualmente na **fase de fundação e autenticação**: a
 | Testes | RSpec · FactoryBot · Capybara |
 | Linting | RuboCop Rails Omakase |
 | Serviços locais | Docker Compose (PostgreSQL para testes · Mailpit) |
+| Deploy | App Fly.io `fluxo-on-rails` em `gru`, usando Neon |
 
 ---
 
@@ -55,6 +56,27 @@ O Docker Compose sobe PostgreSQL para testes locais e Mailpit para email em dese
 O `dotenv-rails` carrega `.env` no desenvolvimento e nos testes. Ambientes de deploy devem fornecer credenciais pela configuração de secrets/runtime da plataforma.
 
 Prefira uma connection string Neon pooled para processos web e workers. Mantenha uma URL direct disponível para migrations ou release commands quando a plataforma de deploy exigir. Solid Queue, Solid Cache e Solid Cable compartilham `DATABASE_URL` em produção, a menos que `QUEUE_DATABASE_URL`, `CACHE_DATABASE_URL` ou `CABLE_DATABASE_URL` sejam definidas separadamente.
+
+---
+
+## Deploy
+
+O primeiro alvo de produção é Fly.io, usando Neon via `DATABASE_URL`. O contrato
+de deploy fica versionado em `Dockerfile` e `fly.toml`; decisões duráveis e
+detalhes operacionais estão documentados em
+[`docs/adr/0004-flyio-first-deploy.md`](docs/adr/0004-flyio-first-deploy.md).
+
+Secrets de produção são configurados na plataforma de deploy, não neste
+repositório. Os secrets necessários incluem `RAILS_MASTER_KEY`, `DATABASE_URL` e
+credenciais SMTP quando email transacional estiver habilitado.
+
+SMTP é opcional no primeiro deploy. Sem configuração SMTP, o envio externo de
+emails fica desabilitado; quando email transacional for necessário, configure um
+provedor SMTP e um remetente verificado em `MAILER_FROM`.
+
+Active Storage permanece intencionalmente no serviço de disco local para o
+primeiro deploy. Configure object storage antes de aceitar uploads persistentes
+de usuários em produção.
 
 ---
 
@@ -94,6 +116,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Content Security Policy aplicada nas respostas do navegador
 - Página inicial e entradas completas de autenticação Devise: login, cadastro, recuperação de senha, confirmação de email e edição de conta
 - Serviço local Mailpit para email em desenvolvimento
+- Configuração de deploy Fly.io com Docker, health check em `/up` e migrations por release command
 - CI: migrations do banco, RSpec, RuboCop, auditorias de vulnerabilidade, Brakeman, Zeitwerk e precompile dos assets de produção
 
 **Adiado para fases futuras:**
@@ -101,7 +124,6 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Contas, transações, categorias, orçamentos, metas e dashboard
 - OAuth
 - Relatórios em PDF, importação CSV, paginação e busca
-- Configuração de deploy
 
 ---
 
