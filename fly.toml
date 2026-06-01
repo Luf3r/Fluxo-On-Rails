@@ -32,7 +32,7 @@ console_command = "/rails/bin/rails console"
     hard_limit = 250
 
   [[http_service.checks]]
-    grace_period = "45s"
+    grace_period = "60s"
     interval = "15s"
     method = "GET"
     path = "/up"
