@@ -8,9 +8,19 @@ en:
       sign_up: "Create account"
       sign_out: "Sign out"
       greeting: "Hi, %{name}"
+      language: "Language"
+      mobile_menu: "Open menu"
     footer:
       line_one: "Fluxo. Personal finance with more clarity and less improvisation."
       line_two: "Plan the month, track goals, and make decisions with context."
+      product: "Product"
+      home: "Home"
+      how_it_works: "How it works"
+      planning: "Planning"
+      account: "Account"
+      language: "Language"
+      copyright: "%{year} Fluxo. Built to organize the month with less noise."
+      status: "Clarity to make better decisions every month."
   home:
     title: "Fluxo - personal finance without heavy spreadsheets"
     hero:
