@@ -40,7 +40,7 @@ responsiva do projeto.
 | Testes | RSpec · FactoryBot · Capybara |
 | Linting | RuboCop Rails Omakase |
 | Serviços locais | Docker Compose (PostgreSQL para testes · Mailpit) |
-| Deploy | App Fly.io `fluxo-on-rails` em `gru`, usando Neon |
+| Deploy | App Fly.io `fluxo-on-rails` em `gru`, grupos de processo web/worker, usando Neon |
 
 ---
 
@@ -75,6 +75,15 @@ de deploy fica versionado em `Dockerfile` e `fly.toml`; decisões duráveis e
 detalhes operacionais estão documentados em
 [`docs/adr/0004-flyio-first-deploy.md`](docs/adr/0004-flyio-first-deploy.md).
 
+O Fly roda grupos de processo separados para `web` e `worker`. O grupo `web`
+inicia Thruster/Puma com `bin/thrust bin/rails server`, o grupo `worker` inicia
+Solid Queue com `bin/jobs start`, e o serviço HTTP com health checks em `/up`
+fica escopado apenas para `web`. As Machines de web e worker usam
+`shared-cpu-1x` com 512 MB de RAM, e produção mantém duas Machines web ativas
+com `min_machines_running = 2` para evitar latência de cold start e as falhas de
+OOM/health check em 256 MB observadas no primeiro deploy com processos
+separados.
+
 Secrets de produção são configurados na plataforma de deploy, não neste
 repositório. Os secrets necessários incluem `RAILS_MASTER_KEY`, `DATABASE_URL` e
 credenciais SMTP quando email transacional estiver habilitado.
@@ -96,6 +105,10 @@ as variáveis do GitHub Actions `FLY_STAGING_APP`, `STAGING_APP_URL`,
 `FLY_PRODUCTION_APP` e `PRODUCTION_APP_URL` quando necessário. Produção pode
 ficar com aprovação manual ativando required reviewers no environment
 `production` do GitHub.
+
+Ao mudar configuração de deploy, rode
+`bundle exec rspec spec/config/deployment_files_spec.rb` e
+`fly config validate --config fly.toml` além dos checks normais do projeto.
 
 ---
 
@@ -119,6 +132,7 @@ bin/bundler-audit
 bin/importmap audit
 bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
 RAILS_ENV=test bin/rails zeitwerk:check
+bundle exec rspec spec/config/deployment_files_spec.rb
 RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/rails assets:precompile
 ```
 
@@ -131,11 +145,12 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Scaffold Rails full-stack com Hotwire e Tailwind CSS
 - Neon Serverless Postgres em runtime, com PostgreSQL local/CI para testes
 - `User` Devise com `name`, `currency` (validado contra ISO 4217: BRL, USD, EUR), `avatar_url`, confirmacao de email e timestamp de paridade `email_verified_at`
+- Chaves primarias UUID v7 para registros da aplicação, mantendo tabelas de infraestrutura Solid nos padrões dos adapters
 - Throttles Rack::Attack para tentativas de login e recuperação de senha
 - Content Security Policy aplicada nas respostas do navegador
 - Página inicial e entradas completas de autenticação Devise: login, cadastro, recuperação de senha, confirmação de email e edição de conta
 - Serviço local Mailpit para email em desenvolvimento
-- Configuração de deploy Fly.io com Docker, health check em `/up` e migrations por release command
+- Configuração de deploy Fly.io com Docker, grupos de processo `web`/`worker`, health check em `/up`, Machines de 512 MB e migrations por release command
 - CI: migrations do banco, RSpec, RuboCop, auditorias de vulnerabilidade, Brakeman, Zeitwerk e precompile dos assets de produção
 - CD: deploy Fly.io de staging a partir de `develop`, produção a partir de `main` e checagem `/up` pós-deploy
 
@@ -156,6 +171,8 @@ Decisões-chave documentadas em `docs/adr/`:
 | 0001 | Arquitetura da aplicação | Monolito Rails 8.1.3 com Hotwire — evita a complexidade de SPA sem abrir mão da interatividade |
 | 0002 | Fronteira de domínio autenticado | Controllers financeiros herdam autenticação e padrão tenant-safe de `404 Not Found` |
 | 0003 | Contratos MVP do domínio financeiro | Regras de transferências, orçamentos, categorias, paginação/busca e testes de PDF |
+| 0004 | Primeiro deploy Fly.io | App Fly, banco Neon em runtime, grupos web/worker separados, Machines de 512 MB e health checks de produção |
+| 0005 | Chaves primarias UUID v7 | Registros da aplicação usam IDs UUID v7; tabelas de infraestrutura Solid mantêm IDs inteiros gerenciados pelos adapters |
 
 Os contratos das próximas etapas ficam em [`future_specs/README.md`](future_specs/README.md). Eles são specs de planejamento, não fazem parte da suíte verde até a etapa ser promovida para `spec/`.
 

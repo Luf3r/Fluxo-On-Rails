@@ -41,6 +41,13 @@ RAILS_ENV=test bin/rails zeitwerk:check
 PDF content specs use `pdftotext` from `poppler-utils` when they become part of
 the active suite. They are separate from PDF generation, which should use Prawn.
 
+When changing Fly deployment configuration, also run:
+
+```bash
+bundle exec rspec spec/config/deployment_files_spec.rb
+fly config validate --config fly.toml
+```
+
 ## Future Specs
 
 Specs under `future_specs/` are product contracts for later stages. They are not

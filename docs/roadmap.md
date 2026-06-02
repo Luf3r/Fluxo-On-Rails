@@ -11,7 +11,8 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Rack::Attack throttling
 - CSP and security checks
 - Local and CI verification through `bin/ci`
-- Fly.io deployment configuration backed by Neon
+- Fly.io deployment backed by Neon, with separate `web` and `worker` process
+  groups, `/up` checks scoped to web and 512 MB Machines
 
 ## Next Stages
 
@@ -37,8 +38,14 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Transaction pagination uses Pagy with 25 items per page.
 - MVP search uses `ILIKE`; no Elasticsearch or `pg_search`.
 - PDF generation uses Prawn; text assertions use `pdftotext` only in tests.
+- Application-owned tables use UUID v7 primary keys; Solid infrastructure tables
+  keep their adapter-managed integer IDs.
 - First production deploy targets Fly.io app `fluxo-on-rails` in `gru`, with
   Neon remaining the production database through `DATABASE_URL`.
+- Production Fly runs Solid Queue in a separate `worker` process group; HTTP
+  service and health checks are limited to the `web` process group.
+- Web and worker Machines remain at 512 MB unless new measurements and an ADR
+  support a scale-down, and production keeps at least two web Machines warm.
 
 ## Open Product Questions
 
@@ -46,3 +53,9 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Custom domain and persistent object storage provider for production uploads.
 - Whether CSV import should become asynchronous for large files after MVP.
 - Whether budget alerts should support per-user notification preferences.
+
+## Open Operational Questions
+
+- Production alerting beyond Fly health checks and logs.
+- Worker scale and queue partitioning once recurring transactions, imports and
+  notification jobs are promoted.
