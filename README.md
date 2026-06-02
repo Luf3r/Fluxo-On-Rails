@@ -40,7 +40,7 @@ project works in practice.
 | Testing | RSpec · FactoryBot · Capybara |
 | Linting | RuboCop Rails Omakase |
 | Local services | Docker Compose (PostgreSQL for tests · Mailpit) |
-| Deployment | Fly.io app `fluxo-on-rails` in `gru`, backed by Neon |
+| Deployment | Fly.io app `fluxo-on-rails` in `gru`, web/worker process groups, backed by Neon |
 
 ---
 
@@ -75,6 +75,14 @@ The deployment contract is versioned in `Dockerfile` and `fly.toml`; durable
 decisions and operational details are documented in
 [`docs/adr/0004-flyio-first-deploy.md`](docs/adr/0004-flyio-first-deploy.md).
 
+Fly runs separate `web` and `worker` process groups. The `web` group starts
+Thruster/Puma with `bin/thrust bin/rails server`, the `worker` group starts
+Solid Queue with `bin/jobs start`, and the HTTP service plus `/up` health checks
+are scoped only to `web`. Web and worker Machines currently use
+`shared-cpu-1x` with 512 MB RAM, and production keeps two web Machines warm with
+`min_machines_running = 2` to avoid cold-start latency and the 256 MB OOM/health
+check failures seen during the first split-process deploy.
+
 Production runtime secrets are configured in the deploy platform, not in this
 repository. Required secrets include `RAILS_MASTER_KEY`, `DATABASE_URL` and SMTP
 credentials when transactional email is enabled.
@@ -96,6 +104,10 @@ with GitHub Actions variables `FLY_STAGING_APP`, `STAGING_APP_URL`,
 `FLY_PRODUCTION_APP` and `PRODUCTION_APP_URL` when needed. Production can be
 held behind a manual approval by enabling required reviewers on the GitHub
 `production` environment.
+
+When changing deployment configuration, run
+`bundle exec rspec spec/config/deployment_files_spec.rb` and
+`fly config validate --config fly.toml` in addition to the normal project checks.
 
 ---
 
@@ -119,6 +131,7 @@ bin/bundler-audit
 bin/importmap audit
 bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
 RAILS_ENV=test bin/rails zeitwerk:check
+bundle exec rspec spec/config/deployment_files_spec.rb
 RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/rails assets:precompile
 ```
 
@@ -135,7 +148,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Enforced Content Security Policy for browser responses
 - Home page and complete Devise authentication entry points: sign in, sign up, password recovery, email confirmation, and account editing
 - Local Mailpit service for development email
-- Fly.io deployment configuration with Docker, `/up` health checks and release migrations
+- Fly.io deployment configuration with Docker, split `web`/`worker` process groups, `/up` health checks, 512 MB Machines and release migrations
 - CI: database migrations, RSpec, RuboCop, vulnerability audits, Brakeman, Zeitwerk and production asset precompile
 - CD: Fly.io staging deploys from `develop`, production deploys from `main`, and post-deploy `/up` checks
 
@@ -156,6 +169,7 @@ Key decisions documented under `docs/adr/`:
 | 0001 | Application architecture | Rails 8.1.3 monolith with Hotwire — avoids SPA complexity without sacrificing interactivity |
 | 0002 | Authenticated domain boundary | Finance-domain controllers inherit authentication and tenant-safe `404 Not Found` defaults |
 | 0003 | Finance domain MVP contracts | Transfers, budgets, categories, pagination/search and PDF testing rules for the finance stages |
+| 0004 | Fly.io first deploy | Fly app, Neon runtime database, split web/worker process groups, 512 MB Machines and production health checks |
 
 Future-stage contracts live in [`future_specs/README.md`](future_specs/README.md). They are planning specs, not part of the green test suite until a stage is promoted into `spec/`.
 

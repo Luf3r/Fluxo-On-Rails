@@ -5,11 +5,19 @@ console_command = "/rails/bin/rails console"
 [experimental]
   swap_size_mb = 512
 
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+
 [build]
   dockerfile = "Dockerfile"
 
 [deploy]
   release_command = "bin/rails db:prepare"
+
+[processes]
+  web = "bin/thrust bin/rails server"
+  worker = "bin/jobs start"
 
 [env]
   APP_HOST = "fluxo-on-rails.fly.dev"
@@ -18,16 +26,16 @@ console_command = "/rails/bin/rails console"
   RAILS_ENV = "production"
   RAILS_LOG_LEVEL = "info"
   RAILS_SERVE_STATIC_FILES = "true"
-  SOLID_QUEUE_IN_PUMA = "true"
   THRUSTER_HTTP_PORT = "3000"
   THRUSTER_TARGET_PORT = "3001"
 
 [http_service]
+  processes = ["web"]
   internal_port = 3000
   force_https = true
   auto_stop_machines = "stop"
   auto_start_machines = true
-  min_machines_running = 1
+  min_machines_running = 2
 
   [http_service.concurrency]
     type = "requests"
