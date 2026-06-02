@@ -58,6 +58,9 @@ Promotion checklist:
 Locked contract decisions:
 
 - Transfers use two paired transaction rows linked by `transfer_pair`; both rows have `transaction_type: "transfer"`. Analytics must exclude transfer rows from income and expense totals with `where.not(transaction_type: :transfer)`.
+- Application-domain records use UUID v7 primary keys and UUID foreign keys.
+  Future promoted specs should not assume integer IDs for users, accounts,
+  transactions, categories, tags, goals, imports or reports.
 - Budgets are a nullable decimal `Category#budget_amount` in the MVP. Introduce a `Budget` model only when monthly history, rollover of unused balance, or shared budgets across categories appear.
 - Category hierarchy has only two levels: parent -> child. Transactions can be assigned only to leaf categories. Sub-category create/update flows require a present, valid `parent_id`.
 - Pagination uses Pagy with 25 transactions per page by default. Search uses a simple case-insensitive `ILIKE` scope for the MVP; do not add Elasticsearch or `pg_search`.

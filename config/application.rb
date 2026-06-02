@@ -1,5 +1,7 @@
 require_relative "boot"
 
+require "securerandom"
+
 require "rails"
 # Pick the frameworks you want:
 require "active_model/railtie"
@@ -41,7 +43,9 @@ module FluxoRails
     config.i18n.available_locales = [ :"pt-BR", :en ]
     config.i18n.default_locale = :en
 
-    # Don't generate system test files.
-    config.generators.system_tests = nil
+    config.generators do |generate|
+      generate.orm :active_record, primary_key_type: :uuid
+      generate.system_tests = nil
+    end
   end
 end

@@ -144,6 +144,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Rails full-stack scaffold with Hotwire and Tailwind CSS
 - Neon Serverless Postgres for runtime, with local/CI PostgreSQL for tests
 - Devise `User` with `name`, `currency` (validated against ISO 4217: BRL, USD, EUR), `avatar_url`, email confirmation, and `email_verified_at` parity timestamp
+- UUID v7 primary keys for application-owned records, with Solid infrastructure tables left on their adapter defaults
 - Rack::Attack throttles for login and password reset attempts
 - Enforced Content Security Policy for browser responses
 - Home page and complete Devise authentication entry points: sign in, sign up, password recovery, email confirmation, and account editing
@@ -170,6 +171,7 @@ Key decisions documented under `docs/adr/`:
 | 0002 | Authenticated domain boundary | Finance-domain controllers inherit authentication and tenant-safe `404 Not Found` defaults |
 | 0003 | Finance domain MVP contracts | Transfers, budgets, categories, pagination/search and PDF testing rules for the finance stages |
 | 0004 | Fly.io first deploy | Fly app, Neon runtime database, split web/worker process groups, 512 MB Machines and production health checks |
+| 0005 | UUID v7 primary keys | Application-owned records use UUID v7 IDs; Solid infrastructure tables keep adapter-managed integer IDs |
 
 Future-stage contracts live in [`future_specs/README.md`](future_specs/README.md). They are planning specs, not part of the green test suite until a stage is promoted into `spec/`.
 

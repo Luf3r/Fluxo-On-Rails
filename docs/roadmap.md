@@ -38,6 +38,8 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Transaction pagination uses Pagy with 25 items per page.
 - MVP search uses `ILIKE`; no Elasticsearch or `pg_search`.
 - PDF generation uses Prawn; text assertions use `pdftotext` only in tests.
+- Application-owned tables use UUID v7 primary keys; Solid infrastructure tables
+  keep their adapter-managed integer IDs.
 - First production deploy targets Fly.io app `fluxo-on-rails` in `gru`, with
   Neon remaining the production database through `DATABASE_URL`.
 - Production Fly runs Solid Queue in a separate `worker` process group; HTTP

@@ -145,6 +145,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Scaffold Rails full-stack com Hotwire e Tailwind CSS
 - Neon Serverless Postgres em runtime, com PostgreSQL local/CI para testes
 - `User` Devise com `name`, `currency` (validado contra ISO 4217: BRL, USD, EUR), `avatar_url`, confirmacao de email e timestamp de paridade `email_verified_at`
+- Chaves primarias UUID v7 para registros da aplicação, mantendo tabelas de infraestrutura Solid nos padrões dos adapters
 - Throttles Rack::Attack para tentativas de login e recuperação de senha
 - Content Security Policy aplicada nas respostas do navegador
 - Página inicial e entradas completas de autenticação Devise: login, cadastro, recuperação de senha, confirmação de email e edição de conta
@@ -171,6 +172,7 @@ Decisões-chave documentadas em `docs/adr/`:
 | 0002 | Fronteira de domínio autenticado | Controllers financeiros herdam autenticação e padrão tenant-safe de `404 Not Found` |
 | 0003 | Contratos MVP do domínio financeiro | Regras de transferências, orçamentos, categorias, paginação/busca e testes de PDF |
 | 0004 | Primeiro deploy Fly.io | App Fly, banco Neon em runtime, grupos web/worker separados, Machines de 512 MB e health checks de produção |
+| 0005 | Chaves primarias UUID v7 | Registros da aplicação usam IDs UUID v7; tabelas de infraestrutura Solid mantêm IDs inteiros gerenciados pelos adapters |
 
 Os contratos das próximas etapas ficam em [`future_specs/README.md`](future_specs/README.md). Eles são specs de planejamento, não fazem parte da suíte verde até a etapa ser promovida para `spec/`.
 

@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe User, type: :model do
+  UUID_V7_PATTERN = /\A[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\z/
+
   describe "validations" do
     it "requires a name" do
       user = build(:user, name: nil)
@@ -87,6 +89,14 @@ RSpec.describe User, type: :model do
         :validatable,
         :confirmable
       )
+    end
+  end
+
+  describe "primary key" do
+    it "assigns a UUID v7 id before creating the record" do
+      user = create(:user)
+
+      expect(user.id).to match(UUID_V7_PATTERN)
     end
   end
 
