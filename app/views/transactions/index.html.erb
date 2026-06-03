@@ -10,13 +10,35 @@
     <%= link_to t("finance.transactions.index.new"), new_transaction_path, class: "inline-flex items-center justify-center rounded-full bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700" %>
   </div>
 
-  <%= form_with url: transactions_path, method: :get, class: "mt-6 grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm shadow-zinc-950/5 lg:grid-cols-[1.2fr_0.7fr_0.7fr_0.7fr_auto]" do |form| %>
+  <%= form_with url: transactions_path, method: :get, class: "mt-6 grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm shadow-zinc-950/5 md:grid-cols-2 xl:grid-cols-[1.1fr_0.7fr_0.7fr_0.7fr_0.8fr_0.8fr_auto]" do |form| %>
     <%= hidden_field_tag :locale, I18n.locale if I18n.locale != I18n.default_locale %>
-    <%= form.search_field :q, value: params[:q], placeholder: t("finance.transactions.filters.search"), class: "rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
-    <%= form.date_field :start_date, value: params[:start_date], class: "rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
-    <%= form.date_field :end_date, value: params[:end_date], class: "rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
-    <%= form.select :transaction_type, [[t("finance.transactions.filters.all_types"), ""]] + Transaction.transaction_types.keys.map { |type| [t("finance.transactions.types.#{type}"), type] }, { selected: params[:transaction_type] }, class: "rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
-    <%= form.submit t("finance.transactions.filters.submit"), class: "rounded-xl bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700" %>
+    <div>
+      <%= form.label :q, t("finance.transactions.filters.search"), class: "text-xs font-bold uppercase tracking-wide text-zinc-500" %>
+      <%= form.search_field :q, value: params[:q], class: "mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    </div>
+    <div>
+      <%= form.label :start_date, t("finance.transactions.filters.start_date"), class: "text-xs font-bold uppercase tracking-wide text-zinc-500" %>
+      <%= form.date_field :start_date, value: params[:start_date], class: "mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    </div>
+    <div>
+      <%= form.label :end_date, t("finance.transactions.filters.end_date"), class: "text-xs font-bold uppercase tracking-wide text-zinc-500" %>
+      <%= form.date_field :end_date, value: params[:end_date], class: "mt-2 w-full rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    </div>
+    <div>
+      <%= form.label :transaction_type, t("finance.transactions.filters.type"), class: "text-xs font-bold uppercase tracking-wide text-zinc-500" %>
+      <%= form.select :transaction_type, [[t("finance.transactions.filters.all_types"), ""]] + Transaction.transaction_types.keys.map { |type| [t("finance.transactions.types.#{type}"), type] }, { selected: params[:transaction_type] }, class: "mt-2 w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    </div>
+    <div>
+      <%= form.label :category_id, t("finance.transactions.filters.category"), class: "text-xs font-bold uppercase tracking-wide text-zinc-500" %>
+      <%= form.collection_select :category_id, @filter_categories, :id, :display_name, { selected: params[:category_id], include_blank: t("finance.transactions.filters.all_categories") }, class: "mt-2 w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    </div>
+    <div>
+      <%= form.label :tag_id, t("finance.transactions.filters.tag"), class: "text-xs font-bold uppercase tracking-wide text-zinc-500" %>
+      <%= form.collection_select :tag_id, @tags, :id, :name, { selected: params[:tag_id], include_blank: t("finance.transactions.filters.all_tags") }, class: "mt-2 w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    </div>
+    <div class="flex items-end">
+      <%= form.submit t("finance.transactions.filters.submit"), class: "w-full rounded-xl bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700" %>
+    </div>
   <% end %>
 
   <div class="mt-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm shadow-zinc-950/5">
@@ -33,7 +55,16 @@
         <article class="grid gap-3 px-5 py-4 md:grid-cols-[1fr_0.65fr_0.65fr_0.55fr_0.4fr] md:items-center">
           <div>
             <h2 class="font-bold text-zinc-950"><%= link_to transaction.description.presence || t("finance.transactions.untitled"), transaction_path(transaction), class: "hover:text-emerald-700" %></h2>
-            <p class="mt-1 text-sm text-zinc-500"><%= t("finance.transactions.types.#{transaction.transaction_type}") %> · <%= t("finance.transactions.statuses.#{transaction.status}") %></p>
+            <p class="mt-1 text-sm text-zinc-500">
+              <%= [t("finance.transactions.types.#{transaction.transaction_type}"), t("finance.transactions.statuses.#{transaction.status}"), transaction.category&.display_name].compact.join(" · ") %>
+            </p>
+            <% if transaction.tags.any? %>
+              <p class="mt-2 flex flex-wrap gap-1.5">
+                <% transaction.tags.each do |tag| %>
+                  <span class="rounded-full bg-zinc-100 px-2 py-1 text-xs font-bold text-zinc-600"><%= tag.name %></span>
+                <% end %>
+              </p>
+            <% end %>
           </div>
           <p class="text-sm font-semibold text-zinc-700"><%= transaction.account.name %></p>
           <p class="text-sm text-zinc-600"><%= l(transaction.date) %></p>

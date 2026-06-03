@@ -10,6 +10,12 @@ class Transaction < ApplicationRecord
 
   belongs_to :account
   belongs_to :transfer_pair, class_name: "Transaction", optional: true
+  belongs_to :category, optional: true
+  has_many :transaction_tags,
+           foreign_key: :transaction_id,
+           inverse_of: :taggable_transaction,
+           dependent: :destroy
+  has_many :tags, through: :transaction_tags
 
   enum :transaction_type, TRANSACTION_TYPES.index_with(&:itself), validate: true
   enum :status, STATUSES.index_with(&:itself), validate: true
@@ -21,6 +27,10 @@ class Transaction < ApplicationRecord
   validates :transaction_type, inclusion: { in: TRANSACTION_TYPES }
   validates :status, inclusion: { in: STATUSES }
   validates :transfer_direction, inclusion: { in: TRANSFER_DIRECTIONS }, allow_nil: true
+  validate :category_is_assignable
+  validate :category_belongs_to_account_user
+
+  after_save :sync_tags
 
   scope :by_period, ->(start_date, end_date) {
     parsed_start_date = safe_parse_date(start_date)
@@ -46,11 +56,46 @@ class Transaction < ApplicationRecord
     nil
   end
 
+  def tag_names
+    tags.order(:name).pluck(:name).join(", ")
+  end
+
+  def tag_names=(names)
+    @tag_names = Array(names).flat_map { |value| value.to_s.split(",") }
+      .map(&:strip)
+      .reject(&:blank?)
+      .map(&:downcase)
+      .uniq
+  end
+
   private
 
   def assign_status_from_date
     return if date.blank?
 
     self.status = date.future? ? "pending" : (status.presence || "settled")
+  end
+
+  def category_is_assignable
+    return if category.blank?
+
+    errors.add(:category, :invalid) if transfer?
+    errors.add(:category, :invalid) if category.sub_categories.exists?
+    errors.add(:category, :invalid) unless category.transaction_compatible?(transaction_type)
+  end
+
+  def category_belongs_to_account_user
+    return if category.blank? || account.blank?
+    return if category.system?
+    return if category.user_id == account.user_id
+
+    errors.add(:category, :invalid)
+  end
+
+  def sync_tags
+    return unless defined?(@tag_names)
+    return if account.blank?
+
+    self.tags = @tag_names.map { |name| account.user.tags.find_or_create_by!(name: name) }
   end
 end

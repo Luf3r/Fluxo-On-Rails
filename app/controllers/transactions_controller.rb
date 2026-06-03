@@ -5,12 +5,15 @@ class TransactionsController < AuthenticatedController
 
   before_action :set_transaction, only: %i[show edit update destroy]
   before_action :set_accounts, only: %i[index new edit create update]
+  before_action :set_categorization_options, only: %i[index new edit create update]
 
   def index
-    transactions = current_user.transactions.includes(:account).order(date: :desc, created_at: :desc)
+    transactions = current_user.transactions.includes(:account, :category, :tags).order(date: :desc, created_at: :desc)
     transactions = transactions.by_period(params[:start_date], params[:end_date]) if date_range_filter?
     transactions = transactions.search(params[:q]) if params[:q].present?
     transactions = transactions.where(transaction_type: params[:transaction_type]) if valid_transaction_type_filter?
+    transactions = filter_by_category(transactions)
+    transactions = filter_by_tag(transactions)
 
     @pagy, @transactions = pagy(:offset, transactions, limit: 25)
   end
@@ -42,16 +45,20 @@ class TransactionsController < AuthenticatedController
     end
 
     if amount_too_large?
-      @transaction.assign_attributes(transaction_params.except(:amount))
+      @transaction.assign_attributes(transaction_attributes.except(:amount))
+      assign_category(@transaction)
       add_transaction_error(@transaction, :amount, :amount_too_large)
       return render :edit, status: :unprocessable_entity
     end
 
     account = current_user.accounts.find(transaction_account_id) if transaction_account_id.present?
-    attributes = transaction_params
+    attributes = transaction_attributes
     attributes[:account] = account if account
 
-    if @transaction.update(attributes)
+    @transaction.assign_attributes(attributes)
+    assign_category(@transaction)
+
+    if @transaction.save
       redirect_to transactions_path, notice: t("finance.transactions.notices.updated")
     else
       render :edit, status: :unprocessable_entity
@@ -73,11 +80,18 @@ class TransactionsController < AuthenticatedController
     @accounts = current_user.accounts.order(:name)
   end
 
+  def set_categorization_options
+    @categories = Category.options_for_user(current_user).leaf
+    @filter_categories = Category.options_for_user(current_user)
+    @tags = current_user.tags.order(:name)
+  end
+
   def create_transaction
     return render_transaction_error(:amount, :amount_too_large) if amount_too_large?
 
     account = current_user.accounts.find(transaction_account_id)
-    @transaction = account.transactions.build(transaction_params)
+    @transaction = account.transactions.build(transaction_attributes)
+    assign_category(@transaction)
 
     if @transaction.save
       redirect_to transactions_path, notice: t("finance.transactions.notices.created")
@@ -117,8 +131,14 @@ class TransactionsController < AuthenticatedController
       :amount,
       :transaction_type,
       :date,
-      :status
+      :status,
+      :category_id,
+      :tag_names
     )
+  end
+
+  def transaction_attributes
+    transaction_params.except(:category_id)
   end
 
   def transaction_account_id
@@ -135,6 +155,20 @@ class TransactionsController < AuthenticatedController
 
   def valid_transaction_type_filter?
     params[:transaction_type].present? && params[:transaction_type].in?(Transaction::TRANSACTION_TYPES)
+  end
+
+  def filter_by_category(transactions)
+    return transactions if params[:category_id].blank?
+
+    category = Category.options_for_user(current_user).find_by(id: params[:category_id])
+    category ? transactions.where(category: category) : transactions.none
+  end
+
+  def filter_by_tag(transactions)
+    return transactions if params[:tag_id].blank?
+
+    tag = current_user.tags.find_by(id: params[:tag_id])
+    tag ? transactions.joins(:tags).where(tags: { id: tag.id }) : transactions.none
   end
 
   def transfer_request?
@@ -191,10 +225,11 @@ class TransactionsController < AuthenticatedController
   end
 
   def build_form_transaction
-    Transaction.new(transaction_params.except(:amount)).tap do |transaction|
+    Transaction.new(transaction_attributes.except(:amount)).tap do |transaction|
       transaction.amount = transaction_params[:amount] unless amount_too_large?
       transaction.account_id = transaction_account_id if transaction_account_id.present?
       transaction.to_account_id = transfer_account_id if transfer_account_id.present?
+      assign_category(transaction)
     end
   end
 
@@ -206,15 +241,21 @@ class TransactionsController < AuthenticatedController
   end
 
   def render_existing_transaction_error(attribute, error_key)
-    attributes = transaction_params.except(:amount)
+    attributes = transaction_attributes.except(:amount)
     attributes = attributes.except(:transaction_type) if error_key == :transfer_update_requires_new_record
 
     @transaction.assign_attributes(attributes)
     @transaction.amount = transaction_params[:amount] unless amount_too_large?
     @transaction.account_id = transaction_account_id if transaction_account_id.present?
     @transaction.to_account_id = transfer_account_id if transfer_account_id.present?
+    assign_category(@transaction)
     add_transaction_error(@transaction, attribute, error_key)
     render :edit, status: :unprocessable_entity
+  end
+
+  def assign_category(transaction)
+    category_id = transaction_params[:category_id].presence
+    transaction.category = category_id ? Category.options_for_user(current_user).leaf.find(category_id) : nil
   end
 
   def prepare_transfer_form_transaction

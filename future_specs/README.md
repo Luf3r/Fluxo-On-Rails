@@ -2,7 +2,7 @@
 
 These specs describe later Fluxo Rails development stages from the project development order document.
 
-They live outside `spec/` because the current executable setup includes the Rails foundation, Devise `User`, email confirmation, rate limiting, home page, database setup, CI plumbing, accounts, transactions and paired transfers. Finance-domain contracts stay here until their stage is promoted. Keeping them here preserves project-level intent without making the current CI red.
+They live outside `spec/` because the current executable setup includes the Rails foundation, Devise `User`, email confirmation, rate limiting, home page, database setup, CI plumbing, accounts, transactions, paired transfers, categories, sub-categories, tags and transaction filters. Finance-domain contracts stay here until their stage is promoted. Keeping them here preserves project-level intent without making the current CI red.
 
 Deployment contracts stay in active specs under `spec/config/`. Future specs
 should not duplicate the current Fly contract, but any promoted stage that adds
@@ -19,14 +19,14 @@ Use these files as living product contracts. When starting a stage:
 Run future specs explicitly when planning a stage. These commands are expected to fail until the target stage's dependencies, factories, routes and implementation have been promoted:
 
 ```bash
-bundle exec rspec future_specs/etapa_04_categories_tags_filters
+bundle exec rspec future_specs/etapa_05_analytics
 ```
 
 Stage mapping:
 
 - `etapa_02_authentication`: already promoted into `spec/`; see `spec/requests/authentication_spec.rb`, `spec/requests/devise_pages_spec.rb`, `spec/requests/rate_limiting_spec.rb` and `spec/models/user_spec.rb`.
 - `etapa_03_accounts_transactions`: promoted into `spec/`; see `spec/models/account_spec.rb`, `spec/models/transaction_spec.rb`, `spec/models/user_finance_relationships_spec.rb`, `spec/services/transfers/create_spec.rb`, `spec/requests/accounts_spec.rb`, `spec/requests/transactions_spec.rb` and the finance keys covered by `spec/config/locales_spec.rb`.
-- `etapa_04_categories_tags_filters`: categories, two-level sub-categories, tags, transaction filters.
+- `etapa_04_categories_tags_filters`: promoted into `spec/`; see `spec/models/category_spec.rb`, `spec/models/tag_spec.rb`, `spec/models/transaction_spec.rb`, `spec/requests/categories_spec.rb`, `spec/requests/transactions_spec.rb` and the finance keys covered by `spec/config/locales_spec.rb`.
 - `etapa_05_analytics`: analytics queries and endpoints that exclude transfer rows from income/expense totals.
 - `etapa_06_recurring_jobs`: recurring transactions and scheduled jobs.
 - `etapa_07_goals`: financial goals, progress, projection.
@@ -62,7 +62,7 @@ Locked contract decisions:
   Future promoted specs should not assume integer IDs for users, accounts,
   transactions, categories, tags, goals, imports or reports.
 - Budgets are a nullable decimal `Category#budget_amount` in the MVP. Introduce a `Budget` model only when monthly history, rollover of unused balance, or shared budgets across categories appear.
-- Category hierarchy has only two levels: parent -> child. Transactions can be assigned only to leaf categories. Sub-category create/update flows require a present, valid `parent_id`.
+- Category hierarchy has only two levels: parent -> child. Transactions can be assigned only to leaf categories. Sub-category create/update flows require a present, valid `parent_id`. Categories with transactions cannot gain children, categories with children cannot become sub-categories, and system category display names are localized without translating user-created category names.
 - Pagination uses Pagy with 25 transactions per page by default. Search uses a simple case-insensitive `ILIKE` scope for the MVP; do not add Elasticsearch or `pg_search`.
 - PDF generation uses Prawn. PDF content assertions may use `pdftotext` from `poppler-utils`; response-only PDF specs do not need that system dependency.
 - Production background jobs run through the Fly `worker` process group. Future

@@ -155,7 +155,9 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Transferências pareadas pelo serviço `Transfers::Create`, ligadas por `transfer_pair`, isoladas a contas do mesmo usuário, editadas/removidas em conjunto e bloqueadas quando origem e destino são a mesma conta
 - Telas autenticadas de CRUD para contas e transações, com `404 Not Found` tenant-safe
 - Busca de transações com PostgreSQL `ILIKE`, ordenação mais recente primeiro, paginação Pagy em 25 itens por página, filtros tolerantes a datas inválidas e que preservam idioma, formatação monetária por locale e validação amigável para valores fora da precisão decimal do banco
-- Cobertura ativa de locale para navegação financeira, telas de transações e mensagens de validação em inglês e português
+- Categorias com padrões do sistema traduzidos na interface, subcategorias customizadas em dois níveis, orçamento opcional por categoria, proteções para categorias folha, fallback seguro de exclusão para `Outros`, associação de categoria em transações e filtros de transações por categoria/tag
+- Tags por usuário com normalização para minúsculas, criação automática a partir do formulário de transações e reuso isolado por tenant
+- Cobertura ativa de locale para navegação financeira, telas de categorias, telas de transações e mensagens de validação em inglês e português
 - Serviço local Mailpit para email em desenvolvimento
 - Configuração de deploy Fly.io com Docker, grupos de processo `web`/`worker`, health check em `/up`, Machines de 512 MB e migrations por release command
 - CI: migrations do banco, RSpec, RuboCop, auditorias de vulnerabilidade, Brakeman, Zeitwerk e precompile dos assets de produção
@@ -163,7 +165,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 
 **Adiado para fases futuras:**
 
-- Categorias, tags, orçamentos, metas, analytics e dashboard
+- Metas, analytics, dashboard, transações recorrentes e fluxos de notificação
 - OAuth
 - Relatórios em PDF e importação CSV
 

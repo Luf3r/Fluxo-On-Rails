@@ -36,6 +36,11 @@ Category hierarchy is limited to two levels: parent -> child. Infinite nesting i
 not supported. Transactions may be assigned only to categories that do not have
 children. A parent category without children behaves like any normal category.
 Creating or editing a sub-category requires a present, valid `parent_id`.
+Categories that already have transactions cannot gain children, categories that
+already have children cannot become sub-categories, and a category type cannot
+be changed when that would make existing non-transfer transactions incompatible.
+System category display names are localized from fixed keys; user-created
+category names remain user-provided text in every locale.
 
 Transactions use Pagy for pagination with a default of 25 items per page. Keep
 the page size hard-coded until there is real demand for configurability. MVP

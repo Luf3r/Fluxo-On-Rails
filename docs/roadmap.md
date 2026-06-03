@@ -10,20 +10,19 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Devise authentication with email confirmation
 - Rack::Attack throttling
 - CSP and security checks
-- Accounts, transactions, paired transfers, balances, CRUD screens, `ILIKE`
-  search and Pagy pagination
+- Accounts, transactions, paired transfers, balances, CRUD screens, categories,
+  two-level sub-categories, tags, `ILIKE` search and Pagy pagination
 - Local and CI verification through `bin/ci`
 - Fly.io deployment backed by Neon, with separate `web` and `worker` process
   groups, `/up` checks scoped to web and 512 MB Machines
 
 ## Next Stages
 
-1. Categories, sub-categories, tags and transaction filters
-2. Analytics views and cached query objects
-3. Recurring transactions and scheduled jobs
-4. Goals, budget alerts and digest emails
-5. CSV import and monthly PDF reports
-6. Hotwire UI polish and release hardening
+1. Analytics views and cached query objects
+2. Recurring transactions and scheduled jobs
+3. Goals, budget alerts and digest emails
+4. CSV import and monthly PDF reports
+5. Hotwire UI polish and release hardening
 
 ## Locked Decisions
 
@@ -41,6 +40,10 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
   requirements.
 - Category hierarchy is limited to parent -> child.
 - Transactions can only use leaf categories.
+- Categories with transactions cannot gain children, and categories with
+  children cannot become sub-categories.
+- System category display names are localized; user-created category names are
+  not translated.
 - Transaction pagination uses Pagy with 25 items per page.
 - Transaction lists sort newest first by date and creation time so new records
   are visible immediately after creation.

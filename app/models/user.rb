@@ -13,6 +13,8 @@ class User < ApplicationRecord
 
   has_many :accounts, dependent: :destroy
   has_many :transactions, through: :accounts
+  has_many :categories, dependent: :destroy
+  has_many :tags, dependent: :destroy
 
   def after_confirmation
     update_column(:email_verified_at, confirmed_at)

@@ -4,5 +4,7 @@ RSpec.describe User, type: :model do
   describe "etapa 03 finance relationships" do
     it { should have_many(:accounts).dependent(:destroy) }
     it { should have_many(:transactions).through(:accounts) }
+    it { should have_many(:categories).dependent(:destroy) }
+    it { should have_many(:tags).dependent(:destroy) }
   end
 end

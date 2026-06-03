@@ -29,6 +29,18 @@ RSpec.describe "Transactions", type: :request do
       expect(response.body).not_to include("Translation missing")
     end
 
+    it "localizes system category names without changing custom category names" do
+      system_category = create(:category, :system, name: "Mercado", category_type: "expense")
+      custom_category = create(:category, :income, user: user, name: "Mercado pessoal")
+      tx2.update!(category: system_category)
+      tx1.update!(category: custom_category)
+
+      get transactions_path(locale: :en)
+
+      expect(response.body).to include("Groceries")
+      expect(response.body).to include(custom_category.name)
+    end
+
     it "keeps the current locale when the filter form is submitted" do
       get transactions_path(locale: :"pt-BR")
 
@@ -67,6 +79,39 @@ RSpec.describe "Transactions", type: :request do
       it "filters by transaction_type" do
         get transactions_path, params: { transaction_type: "income" }
         expect(response.body).to include(tx1.description.to_s)
+        expect(response.body).not_to include(tx2.description.to_s)
+      end
+
+      it "filters by category" do
+        groceries = create(:category, :income, user: user, name: "Groceries")
+        rent = create(:category, user: user, name: "Rent")
+        tx1.update!(category: groceries)
+        tx2.update!(category: rent)
+
+        get transactions_path, params: { category_id: groceries.id }
+
+        expect(response.body).to include(tx1.description.to_s)
+        expect(response.body).not_to include(tx2.description.to_s)
+      end
+
+      it "filters by tag" do
+        recurring = create(:tag, user: user, name: "recorrente")
+        occasional = create(:tag, user: user, name: "eventual")
+        tx1.tags << recurring
+        tx2.tags << occasional
+
+        get transactions_path, params: { tag_id: recurring.id }
+
+        expect(response.body).to include(tx1.description.to_s)
+        expect(response.body).not_to include(tx2.description.to_s)
+      end
+
+      it "does not apply another user's category as a valid filter" do
+        other_category = create(:category, user: other, name: "Private")
+
+        get transactions_path, params: { category_id: other_category.id }
+
+        expect(response.body).not_to include(tx1.description.to_s)
         expect(response.body).not_to include(tx2.description.to_s)
       end
     end
@@ -133,6 +178,34 @@ RSpec.describe "Transactions", type: :request do
     it "associates with the current user's account" do
       post transactions_path, params: valid_params
       expect(Transaction.last.account.user).to eq(user)
+    end
+
+    it "assigns a current user's category and tags" do
+      category = create(:category, :income, user: user, name: "Freela")
+
+      post transactions_path, params: {
+        transaction: valid_params[:transaction].merge(
+          category_id: category.id,
+          tag_names: "cliente, imposto"
+        )
+      }
+
+      transaction = Transaction.order(:created_at).last
+      expect(transaction.category).to eq(category)
+      expect(transaction.tags.pluck(:name)).to contain_exactly("cliente", "imposto")
+      expect(transaction.tags.pluck(:user_id).uniq).to eq([ user.id ])
+    end
+
+    it "rejects another user's category" do
+      category = create(:category, user: other)
+
+      expect {
+        post transactions_path, params: {
+          transaction: valid_params[:transaction].merge(category_id: category.id)
+        }
+      }.not_to change(Transaction, :count)
+
+      expect(response).to have_http_status(:not_found)
     end
 
     it "rejects creating a transaction on another user's account" do
@@ -247,6 +320,21 @@ RSpec.describe "Transactions", type: :request do
     it "updates the transaction" do
       patch transaction_path(tx), params: { transaction: { amount: 150.00 } }
       expect(tx.reload.amount).to eq(150.00)
+    end
+
+    it "updates category and tags" do
+      category = create(:category, user: user, name: "Casa")
+
+      patch transaction_path(tx), params: {
+        transaction: {
+          amount: "150.00",
+          category_id: category.id,
+          tag_names: "fixo, mensal"
+        }
+      }
+
+      expect(tx.reload.category).to eq(category)
+      expect(tx.tags.pluck(:name)).to contain_exactly("fixo", "mensal")
     end
 
     it "rejects updating another user's transaction" do

@@ -7,3 +7,9 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+Category::DEFAULTS.each do |attributes|
+  Category.find_or_create_by!(system: true, name: attributes[:name]) do |category|
+    category.category_type = attributes[:category_type]
+  end
+end

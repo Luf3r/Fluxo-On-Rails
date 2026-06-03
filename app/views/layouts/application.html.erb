@@ -43,6 +43,7 @@
             <% if user_signed_in? %>
               <span class="hidden max-w-56 truncate text-sm text-zinc-600 lg:inline"><%= t("app.nav.greeting", name: current_user.name.presence || current_user.email) %></span>
               <%= link_to t("app.nav.accounts"), accounts_path, class: "rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-white hover:text-zinc-950" %>
+              <%= link_to t("app.nav.categories"), categories_path, class: "rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-white hover:text-zinc-950" %>
               <%= link_to t("app.nav.transactions"), transactions_path, class: "rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-white hover:text-zinc-950" %>
               <%= link_to t("app.nav.account"), edit_user_registration_path, class: "rounded-full px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-white hover:text-zinc-950" %>
               <%= button_to t("app.nav.sign_out"), destroy_user_session_path, method: :delete, class: "rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 transition hover:border-zinc-950 hover:bg-white" %>
@@ -71,6 +72,7 @@
                 <% if user_signed_in? %>
                   <p class="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-zinc-500"><%= t("app.nav.greeting", name: current_user.name.presence || current_user.email) %></p>
                   <%= link_to t("app.nav.accounts"), accounts_path, class: "block rounded-2xl px-4 py-3 font-semibold text-zinc-800 transition hover:bg-zinc-100 hover:text-zinc-950" %>
+                  <%= link_to t("app.nav.categories"), categories_path, class: "block rounded-2xl px-4 py-3 font-semibold text-zinc-800 transition hover:bg-zinc-100 hover:text-zinc-950" %>
                   <%= link_to t("app.nav.transactions"), transactions_path, class: "block rounded-2xl px-4 py-3 font-semibold text-zinc-800 transition hover:bg-zinc-100 hover:text-zinc-950" %>
                   <%= link_to t("app.nav.account"), edit_user_registration_path, class: "block rounded-2xl px-4 py-3 font-semibold text-zinc-800 transition hover:bg-zinc-100 hover:text-zinc-950" %>
                   <%= button_to t("app.nav.sign_out"), destroy_user_session_path, method: :delete, class: "w-full rounded-2xl px-4 py-3 text-left font-semibold text-zinc-800 transition hover:bg-zinc-100 hover:text-zinc-950" %>

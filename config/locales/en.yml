@@ -5,6 +5,7 @@ en:
       aria_label: "Primary"
       account: "Settings"
       accounts: "Accounts"
+      categories: "Categories"
       transactions: "Transactions"
       sign_in: "Sign in"
       sign_up: "Create account"
@@ -182,6 +183,7 @@ en:
     actions:
       back: "Back"
       cancel: "Cancel"
+      destroy: "Delete"
       edit: "Edit"
       view: "View"
     accounts:
@@ -222,6 +224,53 @@ en:
         submit: "Update account"
       errors:
         initial_balance_too_large: "choose a value lower than %{max}"
+    categories:
+      notices:
+        created: "Category created."
+        updated: "Category updated."
+        destroyed: "Category removed."
+        destroy_failed: "This category cannot be removed."
+      types:
+        expense: "Expense"
+        income: "Income"
+        both: "Income and expense"
+      system_names:
+        other: "Other"
+        housing: "Housing"
+        groceries: "Groceries"
+        transport: "Transport"
+        health: "Health"
+        leisure: "Leisure"
+        salary: "Salary"
+        freelance: "Freelance"
+      fields:
+        name: "Name"
+        type: "Type"
+        parent: "Parent category"
+        budget_amount: "Monthly budget"
+      form:
+        no_parent: "Top-level category"
+        budget_hint: "Optional. Leave blank when this category does not have a monthly limit yet."
+      index:
+        title: "Categories - Fluxo"
+        eyebrow: "Categories"
+        heading: "Categories and monthly budgets"
+        body: "Organize transactions into simple two-level groups and keep optional category budgets close to the records."
+        new: "New category"
+        custom: "Your categories"
+        system: "System categories"
+        child_of: "Child of %{parent}"
+        no_budget: "No budget"
+        transaction: "transaction"
+        empty: "Create a custom category when the system list is not specific enough."
+      new:
+        title: "New category - Fluxo"
+        heading: "New category"
+        submit: "Create category"
+      edit:
+        title: "Edit category - Fluxo"
+        heading: "Edit category"
+        submit: "Update category"
     transactions:
       untitled: "Untitled transaction"
       notices:
@@ -241,12 +290,21 @@ en:
         to_account: "Destination account"
         description: "Description"
         amount: "Amount"
+        category: "Category"
         date: "Date"
         type: "Type"
         status: "Status"
+        tags: "Tags"
       filters:
         search: "Search description"
+        start_date: "Start"
+        end_date: "End"
+        type: "Type"
+        category: "Category"
+        tag: "Tag"
         all_types: "All types"
+        all_categories: "All categories"
+        all_tags: "All tags"
         submit: "Filter"
       table:
         description: "Description"
@@ -259,6 +317,8 @@ en:
         next: "Next"
       form:
         no_accounts: "Create an account before registering transactions."
+        category_prompt: "No category"
+        tags_hint: "Separate tags with commas. New tags are created automatically."
         to_account_prompt: "Select destination account"
         transfer_hint: "Transfers move money between two different accounts."
       errors:
@@ -275,6 +335,8 @@ en:
         empty: "No transactions match this view."
       show:
         eyebrow: "Transaction"
+        no_category: "No category"
+        no_tags: "No tags"
       new:
         title: "New transaction - Fluxo"
         heading: "New transaction"
@@ -294,4 +356,11 @@ en:
         preferred_locale: "Email language"
       transaction:
         amount: "Amount"
+        category: "Category"
         to_account_id: "Destination account"
+        tag_names: "Tags"
+      category:
+        budget_amount: "Monthly budget"
+        category_type: "Type"
+        name: "Name"
+        parent: "Parent category"

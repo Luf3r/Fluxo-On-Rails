@@ -4,11 +4,20 @@ RSpec.describe "locale files" do
   REQUIRED_KEYS = %w[
     app.nav.account
     app.nav.accounts
+    app.nav.categories
     app.nav.transactions
     date.formats.default
     finance.accounts.errors.initial_balance_too_large
+    finance.categories.index.title
+    finance.categories.form.no_parent
+    finance.categories.notices.destroy_failed
+    finance.categories.system_names.groceries
     finance.transactions.index.title
     finance.transactions.filters.submit
+    finance.transactions.filters.all_categories
+    finance.transactions.filters.all_tags
+    finance.transactions.form.category_prompt
+    finance.transactions.form.tags_hint
     finance.transactions.form.to_account_prompt
     finance.transactions.form.transfer_hint
     finance.transactions.errors.same_account_transfer

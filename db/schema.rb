@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_02_121000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_02_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -25,6 +25,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_121000) do
     t.index ["user_id", "account_type"], name: "index_accounts_on_user_id_and_account_type"
     t.index ["user_id", "name"], name: "index_accounts_on_user_id_and_name"
     t.index ["user_id"], name: "index_accounts_on_user_id"
+  end
+
+  create_table "categories", id: :uuid, default: nil, force: :cascade do |t|
+    t.decimal "budget_amount", precision: 14, scale: 2
+    t.string "category_type", default: "expense", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.uuid "parent_id"
+    t.boolean "system", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id"
+    t.index ["parent_id"], name: "index_categories_on_parent_id"
+    t.index ["system", "name"], name: "index_categories_on_system_and_name"
+    t.index ["user_id", "name"], name: "index_categories_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_categories_on_user_id"
+    t.check_constraint "budget_amount IS NULL OR budget_amount >= 0::numeric", name: "chk_categories_budget_amount_non_negative"
+    t.check_constraint "category_type::text = ANY (ARRAY['expense'::character varying, 'income'::character varying, 'both'::character varying]::text[])", name: "chk_categories_category_type"
+    t.check_constraint "parent_id IS NULL OR parent_id <> id", name: "chk_categories_parent_not_self"
+    t.check_constraint "system = false OR user_id IS NULL", name: "chk_categories_system_user_ownership"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
@@ -169,9 +188,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_121000) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "tags", id: :uuid, default: nil, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["user_id", "name"], name: "index_tags_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_tags_on_user_id"
+  end
+
+  create_table "transaction_tags", id: :uuid, default: nil, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.uuid "tag_id", null: false
+    t.uuid "transaction_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tag_id"], name: "index_transaction_tags_on_tag_id"
+    t.index ["transaction_id", "tag_id"], name: "index_transaction_tags_on_transaction_id_and_tag_id", unique: true
+    t.index ["transaction_id"], name: "index_transaction_tags_on_transaction_id"
+  end
+
   create_table "transactions", id: :uuid, default: nil, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.decimal "amount", precision: 14, scale: 2, null: false
+    t.uuid "category_id"
     t.datetime "created_at", null: false
     t.date "date", null: false
     t.string "description"
@@ -184,6 +223,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_121000) do
     t.index ["account_id", "status"], name: "index_transactions_on_account_id_and_status"
     t.index ["account_id", "transaction_type"], name: "index_transactions_on_account_id_and_transaction_type"
     t.index ["account_id"], name: "index_transactions_on_account_id"
+    t.index ["category_id", "date"], name: "index_transactions_on_category_id_and_date"
+    t.index ["category_id"], name: "index_transactions_on_category_id"
     t.index ["transaction_type", "status"], name: "index_transactions_on_transaction_type_and_status"
     t.index ["transfer_pair_id"], name: "index_transactions_on_transfer_pair_id"
   end
@@ -211,12 +252,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_121000) do
   end
 
   add_foreign_key "accounts", "users"
+  add_foreign_key "categories", "categories", column: "parent_id"
+  add_foreign_key "categories", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "tags", "users"
+  add_foreign_key "transaction_tags", "tags"
+  add_foreign_key "transaction_tags", "transactions"
   add_foreign_key "transactions", "accounts"
+  add_foreign_key "transactions", "categories"
   add_foreign_key "transactions", "transactions", column: "transfer_pair_id"
 end
