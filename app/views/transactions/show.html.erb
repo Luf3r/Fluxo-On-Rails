@@ -22,6 +22,14 @@
         <dt class="text-xs font-bold uppercase tracking-wide text-zinc-500"><%= t("finance.transactions.fields.type") %></dt>
         <dd class="mt-1 font-semibold text-zinc-900"><%= t("finance.transactions.types.#{@transaction.transaction_type}") %></dd>
       </div>
+      <div>
+        <dt class="text-xs font-bold uppercase tracking-wide text-zinc-500"><%= t("finance.transactions.fields.category") %></dt>
+        <dd class="mt-1 font-semibold text-zinc-900"><%= @transaction.category&.display_name || t("finance.transactions.show.no_category") %></dd>
+      </div>
+      <div>
+        <dt class="text-xs font-bold uppercase tracking-wide text-zinc-500"><%= t("finance.transactions.fields.tags") %></dt>
+        <dd class="mt-1 font-semibold text-zinc-900"><%= @transaction.tags.any? ? @transaction.tags.order(:name).pluck(:name).join(", ") : t("finance.transactions.show.no_tags") %></dd>
+      </div>
     </dl>
 
     <div class="mt-6 flex flex-wrap gap-3">

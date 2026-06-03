@@ -4,6 +4,9 @@ require "rails_helper"
 RSpec.describe Transaction, type: :model do
   it { should belong_to(:account) }
   it { should belong_to(:transfer_pair).class_name("Transaction").optional }
+  it { should belong_to(:category).optional }
+  it { should have_many(:transaction_tags).dependent(:destroy) }
+  it { should have_many(:tags).through(:transaction_tags) }
 
   it { should validate_presence_of(:amount) }
   it { should validate_presence_of(:date) }
@@ -57,6 +60,60 @@ RSpec.describe Transaction, type: :model do
 
       expect(transaction).not_to be_valid
       expect(transaction.errors[:amount]).to be_present
+    end
+  end
+
+  describe "category assignment" do
+    let(:user) { create(:user) }
+    let(:account) { create(:account, user: user) }
+
+    it "accepts a compatible leaf category owned by the account user" do
+      category = create(:category, user: user)
+      transaction = build(:transaction, :expense, account: account, category: category)
+
+      expect(transaction).to be_valid
+    end
+
+    it "rejects categories owned by another user" do
+      category = create(:category, user: create(:user))
+      transaction = build(:transaction, :expense, account: account, category: category)
+
+      expect(transaction).not_to be_valid
+      expect(transaction.errors[:category]).to be_present
+    end
+
+    it "rejects parent categories with children" do
+      parent = create(:category, user: user)
+      create(:category, user: user, parent: parent, name: "Aluguel")
+      transaction = build(:transaction, :expense, account: account, category: parent)
+
+      expect(transaction).not_to be_valid
+      expect(transaction.errors[:category]).to be_present
+    end
+
+    it "rejects categories incompatible with the transaction type" do
+      category = create(:category, user: user, category_type: "income")
+      transaction = build(:transaction, :expense, account: account, category: category)
+
+      expect(transaction).not_to be_valid
+      expect(transaction.errors[:category]).to be_present
+    end
+  end
+
+  describe "tag names" do
+    let(:user) { create(:user) }
+    let(:account) { create(:account, user: user) }
+
+    it "creates and reuses user tags from comma-separated names" do
+      create(:tag, user: user, name: "fixo")
+      transaction = build(:transaction, :expense, account: account)
+
+      expect {
+        transaction.tag_names = "Fixo, Mensal"
+        transaction.save!
+      }.to change(Tag, :count).by(1)
+
+      expect(transaction.tags.pluck(:name)).to contain_exactly("fixo", "mensal")
     end
   end
 

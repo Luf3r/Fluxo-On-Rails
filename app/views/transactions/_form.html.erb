@@ -55,6 +55,18 @@
         <%= form.select :status, Transaction.statuses.keys.map { |status| [t("finance.transactions.statuses.#{status}"), status] }, {}, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
       </div>
 
+      <div class="grid gap-5 sm:grid-cols-2" data-transaction-form-target="categorization">
+        <div>
+          <%= form.label :category_id, t("finance.transactions.fields.category"), class: "text-sm font-bold text-zinc-800" %>
+          <%= form.collection_select :category_id, @categories, :id, :display_name, { include_blank: t("finance.transactions.form.category_prompt") }, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700", data: { transaction_form_target: "categorySelect" } %>
+        </div>
+        <div>
+          <%= form.label :tag_names, t("finance.transactions.fields.tags"), class: "text-sm font-bold text-zinc-800" %>
+          <%= form.text_field :tag_names, value: transaction.tag_names, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700", data: { transaction_form_target: "tagNames" } %>
+          <p class="mt-2 text-sm text-zinc-500"><%= t("finance.transactions.form.tags_hint") %></p>
+        </div>
+      </div>
+
       <div class="flex flex-wrap gap-3">
         <%= form.submit submit_label, class: "rounded-full bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700" %>
         <%= link_to t("finance.actions.cancel"), transactions_path, class: "rounded-full border border-zinc-300 px-5 py-3 text-sm font-bold text-zinc-800 transition hover:border-zinc-950" %>

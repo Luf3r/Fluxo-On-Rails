@@ -20,5 +20,6 @@ Rails.application.routes.draw do
   resources :accounts do
     get :balance, on: :member
   end
+  resources :categories, except: :show
   resources :transactions
 end

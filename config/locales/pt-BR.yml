@@ -5,6 +5,7 @@ pt-BR:
       aria_label: "Principal"
       account: "Configuracoes"
       accounts: "Contas"
+      categories: "Categorias"
       transactions: "Transacoes"
       sign_in: "Entrar"
       sign_up: "Criar conta"
@@ -182,6 +183,7 @@ pt-BR:
     actions:
       back: "Voltar"
       cancel: "Cancelar"
+      destroy: "Excluir"
       edit: "Editar"
       view: "Ver"
     accounts:
@@ -222,6 +224,53 @@ pt-BR:
         submit: "Atualizar conta"
       errors:
         initial_balance_too_large: "escolha um valor menor que %{max}"
+    categories:
+      notices:
+        created: "Categoria criada."
+        updated: "Categoria atualizada."
+        destroyed: "Categoria removida."
+        destroy_failed: "Esta categoria nao pode ser removida."
+      types:
+        expense: "Despesa"
+        income: "Receita"
+        both: "Receita e despesa"
+      system_names:
+        other: "Outros"
+        housing: "Moradia"
+        groceries: "Mercado"
+        transport: "Transporte"
+        health: "Saude"
+        leisure: "Lazer"
+        salary: "Salario"
+        freelance: "Freelance"
+      fields:
+        name: "Nome"
+        type: "Tipo"
+        parent: "Categoria superior"
+        budget_amount: "Orcamento mensal"
+      form:
+        no_parent: "Categoria principal"
+        budget_hint: "Opcional. Deixe em branco quando a categoria ainda nao tiver limite mensal."
+      index:
+        title: "Categorias - Fluxo"
+        eyebrow: "Categorias"
+        heading: "Categorias e orcamentos mensais"
+        body: "Organize transacoes em grupos simples de ate dois niveis e mantenha orcamentos opcionais perto dos registros."
+        new: "Nova categoria"
+        custom: "Suas categorias"
+        system: "Categorias do sistema"
+        child_of: "Filha de %{parent}"
+        no_budget: "Sem orcamento"
+        transaction: "transacao"
+        empty: "Crie uma categoria propria quando a lista do sistema nao for especifica o bastante."
+      new:
+        title: "Nova categoria - Fluxo"
+        heading: "Nova categoria"
+        submit: "Criar categoria"
+      edit:
+        title: "Editar categoria - Fluxo"
+        heading: "Editar categoria"
+        submit: "Atualizar categoria"
     transactions:
       untitled: "Transacao sem titulo"
       notices:
@@ -241,12 +290,21 @@ pt-BR:
         to_account: "Conta de destino"
         description: "Descricao"
         amount: "Valor"
+        category: "Categoria"
         date: "Data"
         type: "Tipo"
         status: "Status"
+        tags: "Tags"
       filters:
         search: "Buscar descricao"
+        start_date: "Data inicial"
+        end_date: "Data final"
+        type: "Tipo"
+        category: "Categoria"
+        tag: "Tag"
         all_types: "Todos os tipos"
+        all_categories: "Todas as categorias"
+        all_tags: "Todas as tags"
         submit: "Filtrar"
       table:
         description: "Descricao"
@@ -259,6 +317,8 @@ pt-BR:
         next: "Proxima"
       form:
         no_accounts: "Crie uma conta antes de cadastrar transacoes."
+        category_prompt: "Sem categoria"
+        tags_hint: "Separe tags por virgula. Novas tags sao criadas automaticamente."
         to_account_prompt: "Selecione a conta de destino"
         transfer_hint: "Transferencias movem dinheiro entre duas contas diferentes."
       errors:
@@ -275,6 +335,8 @@ pt-BR:
         empty: "Nenhuma transacao corresponde a esta visao."
       show:
         eyebrow: "Transacao"
+        no_category: "Sem categoria"
+        no_tags: "Sem tags"
       new:
         title: "Nova transacao - Fluxo"
         heading: "Nova transacao"
@@ -294,4 +356,11 @@ pt-BR:
         preferred_locale: "Idioma dos emails"
       transaction:
         amount: "Valor"
+        category: "Categoria"
         to_account_id: "Conta de destino"
+        tag_names: "Tags"
+      category:
+        budget_amount: "Orcamento mensal"
+        category_type: "Tipo"
+        name: "Nome"
+        parent: "Categoria superior"

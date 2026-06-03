@@ -154,7 +154,9 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Paired transfer rows through `Transfers::Create`, linked by `transfer_pair`, isolated to accounts owned by the same user, updated/deleted together, and blocked when source and destination are the same account
 - Authenticated CRUD screens for accounts and transactions, with tenant-safe `404 Not Found` behavior
 - Transaction search with PostgreSQL `ILIKE`, newest-first ordering, Pagy pagination at 25 items per page, invalid-date-tolerant locale-preserving filters, locale-aware money formatting, and user-facing validation for values outside the database decimal precision
-- Active locale coverage for finance navigation, transaction screens and transaction validation messages in English and Portuguese
+- Categories with localized system defaults, user-owned custom two-level sub-categories, nullable per-category budget amounts, leaf-category guardrails, safe deletion fallback to `Outros`, transaction category assignment and category/tag transaction filters
+- User-owned tags with lowercase normalization, automatic creation from transaction forms, tenant-isolated reuse and tenant-safe transaction links
+- Active locale coverage for finance navigation, category screens, transaction screens and transaction validation messages in English and Portuguese
 - Local Mailpit service for development email
 - Fly.io deployment configuration with Docker, split `web`/`worker` process groups, `/up` health checks, 512 MB Machines and release migrations
 - CI: database migrations, RSpec, RuboCop, vulnerability audits, Brakeman, Zeitwerk and production asset precompile
@@ -162,7 +164,7 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 
 **Deferred to future phases:**
 
-- Categories, tags, budgets, goals, analytics and dashboard
+- Goals, analytics, dashboard, recurring transactions and notification flows
 - OAuth
 - PDF reports and CSV import
 
