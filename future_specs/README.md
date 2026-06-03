@@ -2,7 +2,7 @@
 
 These specs describe later Fluxo Rails development stages from the project development order document.
 
-They live outside `spec/` because the current executable setup includes the Rails foundation, Devise `User`, email confirmation, rate limiting, home page, database setup, and CI plumbing. Finance-domain contracts stay here until their stage is promoted. Keeping them here preserves project-level intent without making the current CI red.
+They live outside `spec/` because the current executable setup includes the Rails foundation, Devise `User`, email confirmation, rate limiting, home page, database setup, CI plumbing, accounts, transactions and paired transfers. Finance-domain contracts stay here until their stage is promoted. Keeping them here preserves project-level intent without making the current CI red.
 
 Deployment contracts stay in active specs under `spec/config/`. Future specs
 should not duplicate the current Fly contract, but any promoted stage that adds
@@ -19,13 +19,13 @@ Use these files as living product contracts. When starting a stage:
 Run future specs explicitly when planning a stage. These commands are expected to fail until the target stage's dependencies, factories, routes and implementation have been promoted:
 
 ```bash
-bundle exec rspec future_specs/etapa_03_accounts_transactions
+bundle exec rspec future_specs/etapa_04_categories_tags_filters
 ```
 
 Stage mapping:
 
 - `etapa_02_authentication`: already promoted into `spec/`; see `spec/requests/authentication_spec.rb`, `spec/requests/devise_pages_spec.rb`, `spec/requests/rate_limiting_spec.rb` and `spec/models/user_spec.rb`.
-- `etapa_03_accounts_transactions`: accounts, transactions, paired transfer rows, balances, CRUD.
+- `etapa_03_accounts_transactions`: promoted into `spec/`; see `spec/models/account_spec.rb`, `spec/models/transaction_spec.rb`, `spec/models/user_finance_relationships_spec.rb`, `spec/services/transfers/create_spec.rb`, `spec/requests/accounts_spec.rb`, `spec/requests/transactions_spec.rb` and the finance keys covered by `spec/config/locales_spec.rb`.
 - `etapa_04_categories_tags_filters`: categories, two-level sub-categories, tags, transaction filters.
 - `etapa_05_analytics`: analytics queries and endpoints that exclude transfer rows from income/expense totals.
 - `etapa_06_recurring_jobs`: recurring transactions and scheduled jobs.

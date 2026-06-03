@@ -3,7 +3,9 @@ en:
     name: "Fluxo"
     nav:
       aria_label: "Primary"
-      account: "Account"
+      account: "Settings"
+      accounts: "Accounts"
+      transactions: "Transactions"
       sign_in: "Sign in"
       sign_up: "Create account"
       sign_out: "Sign out"
@@ -17,10 +19,13 @@ en:
       home: "Home"
       how_it_works: "How it works"
       planning: "Planning"
-      account: "Account"
+      account: "Settings"
       language: "Language"
       copyright: "%{year} Fluxo. Built to organize the month with less noise."
       status: "Clarity to make better decisions every month."
+  date:
+    formats:
+      default: "%m/%d/%Y"
   home:
     title: "Fluxo - personal finance without heavy spreadsheets"
     hero:
@@ -173,6 +178,111 @@ en:
         current_password: "Current password"
         current_password_hint: "Required to protect account changes."
       submit: "Update account"
+  finance:
+    actions:
+      back: "Back"
+      cancel: "Cancel"
+      edit: "Edit"
+      view: "View"
+    accounts:
+      notices:
+        created: "Account created."
+        updated: "Account updated."
+        destroyed: "Account removed."
+      types:
+        checking: "Checking"
+        savings: "Savings"
+        investment: "Investment"
+        cash: "Cash"
+      fields:
+        name: "Name"
+        type: "Type"
+        currency: "Currency"
+        balance: "Balance"
+        initial_balance: "Initial balance"
+      index:
+        title: "Accounts - Fluxo"
+        eyebrow: "Accounts"
+        heading: "Your financial accounts"
+        body: "Keep bank accounts, cash and investment buckets separated so balances stay readable."
+        new: "New account"
+        empty_title: "Create your first account"
+        empty_body: "Transactions need an account before the month can be tracked."
+      show:
+        eyebrow: "Account"
+        recent_transactions: "Recent transactions"
+        empty_transactions: "No transactions registered for this account yet."
+      new:
+        title: "New account - Fluxo"
+        heading: "New account"
+        submit: "Create account"
+      edit:
+        title: "Edit account - Fluxo"
+        heading: "Edit account"
+        submit: "Update account"
+      errors:
+        initial_balance_too_large: "choose a value lower than %{max}"
+    transactions:
+      untitled: "Untitled transaction"
+      notices:
+        created: "Transaction created."
+        updated: "Transaction updated."
+        destroyed: "Transaction removed."
+        transfer_created: "Transfer created."
+      types:
+        income: "Income"
+        expense: "Expense"
+        transfer: "Transfer"
+      statuses:
+        settled: "Settled"
+        pending: "Pending"
+      fields:
+        account: "Account"
+        to_account: "Destination account"
+        description: "Description"
+        amount: "Amount"
+        date: "Date"
+        type: "Type"
+        status: "Status"
+      filters:
+        search: "Search description"
+        all_types: "All types"
+        submit: "Filter"
+      table:
+        description: "Description"
+        account: "Account"
+        date: "Date"
+        amount: "Amount"
+      pagination:
+        summary: "Showing %{from}-%{to} of %{count}"
+        previous: "Previous"
+        next: "Next"
+      form:
+        no_accounts: "Create an account before registering transactions."
+        to_account_prompt: "Select destination account"
+        transfer_hint: "Transfers move money between two different accounts."
+      errors:
+        amount_too_large: "choose a value lower than %{max}"
+        destination_required: "Select a destination account."
+        same_account_transfer: "choose a different destination account"
+        transfer_update_requires_new_record: "Create a new transfer to move money between accounts."
+      index:
+        title: "Transactions - Fluxo"
+        eyebrow: "Transactions"
+        heading: "Income, expenses and transfers"
+        body: "Record the movement that changes each account balance and filter the month without leaving the page."
+        new: "New transaction"
+        empty: "No transactions match this view."
+      show:
+        eyebrow: "Transaction"
+      new:
+        title: "New transaction - Fluxo"
+        heading: "New transaction"
+        submit: "Create transaction"
+      edit:
+        title: "Edit transaction - Fluxo"
+        heading: "Edit transaction"
+        submit: "Update transaction"
   activerecord:
     attributes:
       user:
@@ -182,3 +292,6 @@ en:
         password_confirmation: "Password confirmation"
         currency: "Currency"
         preferred_locale: "Email language"
+      transaction:
+        amount: "Amount"
+        to_account_id: "Destination account"

@@ -14,7 +14,7 @@ RSpec.describe Transfers::Create, type: :service do
       to_account:   to_account,
       amount:       300.00,
       date:         Date.current,
-      description:  "Transferência poupança"
+      description:  "Transferencia poupanca"
     }
   end
 
@@ -68,6 +68,15 @@ RSpec.describe Transfers::Create, type: :service do
       expect(to_account.transactions.last.date).to eq(date)
     end
 
+    it "applies the requested status to both transfer rows" do
+      service.call(**valid_attrs.merge(status: "pending"))
+
+      transfer_rows = [ from_account.transactions.last, to_account.transactions.last ]
+      expect(transfer_rows.map(&:status)).to eq(%w[pending pending])
+      expect(from_account.current_balance).to eq(1000.00)
+      expect(to_account.current_balance).to eq(0.00)
+    end
+
     context "atomicity" do
       subject(:service) { described_class.new(transaction_executor: transaction_executor) }
 
@@ -115,6 +124,18 @@ RSpec.describe Transfers::Create, type: :service do
         expect {
           service.call(**valid_attrs.merge(to_account: other_account))
         }.to raise_error(Transfers::Create::UnauthorizedTransferError)
+      end
+    end
+
+    context "with the same source and destination account" do
+      it "does not create a self-transfer" do
+        initial_count = Transaction.count
+
+        expect {
+          service.call(**valid_attrs.merge(to_account: from_account))
+        }.to raise_error(Transfers::Create::SameAccountTransferError)
+
+        expect(Transaction.count).to eq(initial_count)
       end
     end
   end

@@ -1,0 +1,64 @@
+<% transfer_selected = transaction.transaction_type == "transfer" %>
+<% locked_transfer_type = transaction.persisted? && transfer_selected %>
+<% transaction_type_options = Transaction.transaction_types.keys %>
+<% transaction_type_options = transaction_type_options.reject { |type| type == "transfer" } if transaction.persisted? && !transfer_selected %>
+
+<div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm shadow-zinc-950/5">
+  <h1 class="text-3xl font-black tracking-tight text-zinc-950"><%= title %></h1>
+
+  <%= render "devise/shared/error_messages", resource: transaction %>
+
+  <% if @accounts.empty? %>
+    <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      <%= t("finance.transactions.form.no_accounts") %>
+      <%= link_to t("finance.accounts.index.new"), new_account_path, class: "font-bold underline" %>
+    </div>
+  <% else %>
+    <%= form_with model: transaction, class: "mt-6 grid gap-5", data: { controller: "transaction-form" } do |form| %>
+      <%= hidden_field_tag :locale, I18n.locale if I18n.locale != I18n.default_locale %>
+
+      <div>
+        <%= form.label :description, t("finance.transactions.fields.description"), class: "text-sm font-bold text-zinc-800" %>
+        <%= form.text_field :description, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+      </div>
+
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <%= form.label :account_id, t("finance.transactions.fields.account"), class: "text-sm font-bold text-zinc-800" %>
+          <%= form.collection_select :account_id, @accounts, :id, :name, {}, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+        </div>
+        <div class="<%= "hidden" unless transfer_selected %>" data-transaction-form-target="destination">
+          <%= form.label :to_account_id, t("finance.transactions.fields.to_account"), class: "text-sm font-bold text-zinc-800" %>
+          <%= form.collection_select :to_account_id, @accounts, :id, :name, { include_blank: t("finance.transactions.form.to_account_prompt") }, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700", disabled: !transfer_selected, required: transfer_selected, data: { transaction_form_target: "destinationSelect" } %>
+          <p class="mt-2 text-sm text-zinc-500"><%= t("finance.transactions.form.transfer_hint") %></p>
+        </div>
+      </div>
+
+      <div class="grid gap-5 sm:grid-cols-3">
+        <div>
+          <%= form.label :transaction_type, t("finance.transactions.fields.type"), class: "text-sm font-bold text-zinc-800" %>
+          <%= form.hidden_field :transaction_type if locked_transfer_type %>
+          <%= form.select :transaction_type, transaction_type_options.map { |type| [t("finance.transactions.types.#{type}"), type] }, {}, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700", disabled: locked_transfer_type, data: { transaction_form_target: "type", action: "transaction-form#toggle" } %>
+        </div>
+        <div>
+          <%= form.label :amount, t("finance.transactions.fields.amount"), class: "text-sm font-bold text-zinc-800" %>
+          <%= form.number_field :amount, step: "0.01", min: "0.01", max: Transaction::MAX_AMOUNT.to_s("F"), class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+        </div>
+        <div>
+          <%= form.label :date, t("finance.transactions.fields.date"), class: "text-sm font-bold text-zinc-800" %>
+          <%= form.date_field :date, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+        </div>
+      </div>
+
+      <div>
+        <%= form.label :status, t("finance.transactions.fields.status"), class: "text-sm font-bold text-zinc-800" %>
+        <%= form.select :status, Transaction.statuses.keys.map { |status| [t("finance.transactions.statuses.#{status}"), status] }, {}, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <%= form.submit submit_label, class: "rounded-full bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700" %>
+        <%= link_to t("finance.actions.cancel"), transactions_path, class: "rounded-full border border-zinc-300 px-5 py-3 text-sm font-bold text-zinc-800 transition hover:border-zinc-950" %>
+      </div>
+    <% end %>
+  <% end %>
+</div>

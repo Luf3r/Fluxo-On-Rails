@@ -1,0 +1,5 @@
+<% content_for :title, t("finance.transactions.edit.title") %>
+
+<section class="mx-auto max-w-3xl px-5 py-10 lg:px-8">
+  <%= render "form", transaction: @transaction, title: t("finance.transactions.edit.heading"), submit_label: t("finance.transactions.edit.submit") %>
+</section>

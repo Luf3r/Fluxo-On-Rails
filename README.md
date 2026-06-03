@@ -13,7 +13,7 @@
 
 Fluxo is a personal finance platform where users will track income and expenses, manage multiple financial accounts, set budgets per category, define savings goals, and generate analytical reports.
 
-This repository is currently in its **foundation and authentication phase**: the Rails base, database setup, Devise flows, rate limiting and CI are in place, but finance features are not yet implemented. The previous TypeScript monorepo (NestJS + Next.js) serves as a conceptual reference — this app starts fresh from Rails conventions rather than porting the prior architecture.
+This repository is currently in its **first finance MVP phase**: the Rails base, Devise authentication and the account/transaction domain are in place. Users can create financial accounts, record income and expenses, and move money through paired transfer rows. The previous TypeScript monorepo (NestJS + Next.js) serves as a conceptual reference — this app starts fresh from Rails conventions rather than porting the prior architecture.
 
 ---
 
@@ -37,7 +37,8 @@ project works in practice.
 | Background jobs / Cache / WebSockets | Solid Queue · Solid Cache · Solid Cable |
 | Frontend | Hotwire · Turbo · Stimulus · Tailwind CSS v4 |
 | File storage | Active Storage (disk in dev/test) |
-| Testing | RSpec · FactoryBot · Capybara |
+| Pagination | Pagy |
+| Testing | RSpec · FactoryBot · Capybara · shoulda-matchers |
 | Linting | RuboCop Rails Omakase |
 | Local services | Docker Compose (PostgreSQL for tests · Mailpit) |
 | Deployment | Fly.io app `fluxo-on-rails` in `gru`, web/worker process groups, backed by Neon |
@@ -148,6 +149,12 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Rack::Attack throttles for login and password reset attempts
 - Enforced Content Security Policy for browser responses
 - Home page and complete Devise authentication entry points: sign in, sign up, password recovery, email confirmation, and account editing
+- User-owned accounts with UUID v7 ids, account types, currencies, initial balances, current balance calculation and red negative-balance treatment
+- Transactions for income, expenses and transfers, including automatic pending status for future dates
+- Paired transfer rows through `Transfers::Create`, linked by `transfer_pair`, isolated to accounts owned by the same user, updated/deleted together, and blocked when source and destination are the same account
+- Authenticated CRUD screens for accounts and transactions, with tenant-safe `404 Not Found` behavior
+- Transaction search with PostgreSQL `ILIKE`, newest-first ordering, Pagy pagination at 25 items per page, invalid-date-tolerant locale-preserving filters, locale-aware money formatting, and user-facing validation for values outside the database decimal precision
+- Active locale coverage for finance navigation, transaction screens and transaction validation messages in English and Portuguese
 - Local Mailpit service for development email
 - Fly.io deployment configuration with Docker, split `web`/`worker` process groups, `/up` health checks, 512 MB Machines and release migrations
 - CI: database migrations, RSpec, RuboCop, vulnerability audits, Brakeman, Zeitwerk and production asset precompile
@@ -155,9 +162,9 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 
 **Deferred to future phases:**
 
-- Accounts, transactions, categories, budgets, goals and dashboard
+- Categories, tags, budgets, goals, analytics and dashboard
 - OAuth
-- PDF reports, CSV import, pagination and search
+- PDF reports and CSV import
 
 ---
 

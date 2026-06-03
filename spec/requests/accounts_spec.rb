@@ -20,6 +20,26 @@ RSpec.describe "Accounts", type: :request do
       get accounts_path
       expect(response.body).not_to include(other_accounts.first.name)
     end
+
+    it "renders the Portuguese accounts page without missing translations" do
+      get accounts_path(locale: :"pt-BR")
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Contas")
+      expect(response.body).to include("Configuracoes")
+      expect(response.body).not_to include("translation missing")
+      expect(response.body).not_to include("Translation missing")
+    end
+
+    it "renders negative balances with a red treatment" do
+      negative_account = my_accounts.first
+      create(:transaction, :expense, :settled, account: negative_account, amount: 250.00)
+
+      get accounts_path
+
+      expect(response.body).to include("text-red-700")
+      expect(response.body).to include(negative_account.name)
+    end
   end
 
   describe "GET /accounts/:id" do
@@ -34,6 +54,14 @@ RSpec.describe "Accounts", type: :request do
       other_account = create(:account, user: other)
       get account_path(other_account)
       expect(response).to have_http_status(:not_found)
+    end
+
+    it "renders a negative balance in red" do
+      create(:transaction, :expense, :settled, account: account, amount: 250.00)
+
+      get account_path(account)
+
+      expect(response.body).to include("text-red-700")
     end
   end
 
@@ -50,6 +78,11 @@ RSpec.describe "Accounts", type: :request do
       get balance_account_path(account)
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("600")
+    end
+
+    it "formats the balance according to the current locale" do
+      get balance_account_path(account, locale: :"pt-BR")
+      expect(response.body).to include("R$ 600,00")
     end
 
     it "does not include pending transactions in the balance" do
@@ -83,6 +116,18 @@ RSpec.describe "Accounts", type: :request do
         post accounts_path, params: { account: { name: "" } }
       }.not_to change(Account, :count)
     end
+
+    it "rejects huge initial balances without raising a server error" do
+      expect {
+        post accounts_path(locale: :"pt-BR"), params: {
+          account: valid_params[:account].merge(initial_balance: "999999999999999999999999")
+        }
+      }.not_to change(Account, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include("valor menor")
+      expect(response.body).not_to include("RangeError")
+    end
   end
 
   describe "PATCH /accounts/:id" do
@@ -99,6 +144,16 @@ RSpec.describe "Accounts", type: :request do
       expect(other_account.reload.name).to eq("Protected")
       expect(response).to have_http_status(:not_found)
     end
+
+    it "rejects huge initial balances without changing the account" do
+      patch account_path(account, locale: :"pt-BR"), params: {
+        account: { initial_balance: "999999999999999999999999" }
+      }
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(account.reload.initial_balance).to eq(100.00)
+      expect(response.body).to include("valor menor")
+    end
   end
 
   describe "DELETE /accounts/:id" do
@@ -113,6 +168,21 @@ RSpec.describe "Accounts", type: :request do
       create_list(:transaction, 3, :income, account: account)
       expect { delete account_path(account) }
         .to change(Transaction, :count).by(-3)
+    end
+
+    it "destroys paired transfer rows in other accounts to preserve transfer invariants" do
+      other_account = create(:account, user: user)
+      Transfers::Create.new.call(
+        from_account: account,
+        to_account: other_account,
+        amount: 10.00,
+        date: Date.current,
+        description: "Poupanca"
+      )
+
+      expect { delete account_path(account) }
+        .to change(Transaction, :count).by(-2)
+      expect(other_account.reload.transactions).to be_empty
     end
 
     it "does not destroy another user's account" do
