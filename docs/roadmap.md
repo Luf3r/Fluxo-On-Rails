@@ -10,19 +10,20 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Devise authentication with email confirmation
 - Rack::Attack throttling
 - CSP and security checks
+- Accounts, transactions, paired transfers, balances, CRUD screens, `ILIKE`
+  search and Pagy pagination
 - Local and CI verification through `bin/ci`
 - Fly.io deployment backed by Neon, with separate `web` and `worker` process
   groups, `/up` checks scoped to web and 512 MB Machines
 
 ## Next Stages
 
-1. Accounts, transactions and transfers
-2. Categories, sub-categories, tags and transaction filters
-3. Analytics views and cached query objects
-4. Recurring transactions and scheduled jobs
-5. Goals, budget alerts and digest emails
-6. CSV import and monthly PDF reports
-7. Hotwire UI polish and release hardening
+1. Categories, sub-categories, tags and transaction filters
+2. Analytics views and cached query objects
+3. Recurring transactions and scheduled jobs
+4. Goals, budget alerts and digest emails
+5. CSV import and monthly PDF reports
+6. Hotwire UI polish and release hardening
 
 ## Locked Decisions
 
@@ -30,12 +31,23 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Cross-user resource access returns `404 Not Found`.
 - Transfers use paired `transaction_type: "transfer"` rows linked by
   `transfer_pair`; analytics excludes transfers from income/expense totals.
+- Transfers require different source and destination accounts; the service layer
+  enforces this invariant.
+- Transfer update and delete operations preserve both paired rows.
+- Finance decimal inputs reject values outside the database decimal precision
+  with user-facing validation instead of allowing PostgreSQL overflow errors.
 - Category budgets use `Category#budget_amount` for the MVP.
 - A separate `Budget` model waits for monthly history, rollover or shared budget
   requirements.
 - Category hierarchy is limited to parent -> child.
 - Transactions can only use leaf categories.
 - Transaction pagination uses Pagy with 25 items per page.
+- Transaction lists sort newest first by date and creation time so new records
+  are visible immediately after creation.
+- Transaction date filters ignore invalid date input rather than raising server
+  errors.
+- Money formatting follows the active locale, and negative account balances are
+  visually marked in red.
 - MVP search uses `ILIKE`; no Elasticsearch or `pg_search`.
 - PDF generation uses Prawn; text assertions use `pdftotext` only in tests.
 - Application-owned tables use UUID v7 primary keys; Solid infrastructure tables

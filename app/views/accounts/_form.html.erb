@@ -1,0 +1,33 @@
+<div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm shadow-zinc-950/5">
+  <h1 class="text-3xl font-black tracking-tight text-zinc-950"><%= title %></h1>
+
+  <%= render "devise/shared/error_messages", resource: account %>
+
+  <%= form_with model: account, class: "mt-6 grid gap-5" do |form| %>
+    <div>
+      <%= form.label :name, t("finance.accounts.fields.name"), class: "text-sm font-bold text-zinc-800" %>
+      <%= form.text_field :name, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+    </div>
+
+    <div class="grid gap-5 sm:grid-cols-2">
+      <div>
+        <%= form.label :account_type, t("finance.accounts.fields.type"), class: "text-sm font-bold text-zinc-800" %>
+        <%= form.select :account_type, Account.account_types.keys.map { |type| [t("finance.accounts.types.#{type}"), type] }, {}, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+      </div>
+      <div>
+        <%= form.label :currency, t("finance.accounts.fields.currency"), class: "text-sm font-bold text-zinc-800" %>
+        <%= form.select :currency, User::SUPPORTED_CURRENCIES, {}, class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :initial_balance, t("finance.accounts.fields.initial_balance"), class: "text-sm font-bold text-zinc-800" %>
+      <%= form.number_field :initial_balance, step: "0.01", min: "0", max: Account::MAX_INITIAL_BALANCE.to_s("F"), class: "mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-950 outline-none transition focus:border-emerald-700" %>
+    </div>
+
+    <div class="flex flex-wrap gap-3">
+      <%= form.submit submit_label, class: "rounded-full bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700" %>
+      <%= link_to t("finance.actions.cancel"), accounts_path, class: "rounded-full border border-zinc-300 px-5 py-3 text-sm font-bold text-zinc-800 transition hover:border-zinc-950" %>
+    </div>
+  <% end %>
+</div>

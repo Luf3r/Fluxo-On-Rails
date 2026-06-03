@@ -1,0 +1,54 @@
+<% content_for :title, @account.name %>
+<% balance = @account.current_balance %>
+
+<section class="mx-auto max-w-7xl px-5 py-10 lg:px-8">
+  <div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+    <aside class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm shadow-zinc-950/5">
+      <p class="text-sm font-bold uppercase tracking-[0.16em] text-emerald-700"><%= t("finance.accounts.show.eyebrow") %></p>
+      <h1 class="mt-2 text-4xl font-black tracking-tight text-zinc-950"><%= @account.name %></h1>
+      <dl class="mt-6 grid gap-4">
+        <div>
+          <dt class="text-xs font-bold uppercase tracking-wide text-zinc-500"><%= t("finance.accounts.fields.balance") %></dt>
+          <dd class="mt-1 text-3xl font-black <%= balance.negative? ? "text-red-700" : "text-emerald-700" %>"><%= finance_money(balance, @account.currency) %></dd>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <dt class="text-xs font-bold uppercase tracking-wide text-zinc-500"><%= t("finance.accounts.fields.type") %></dt>
+            <dd class="mt-1 font-semibold text-zinc-900"><%= t("finance.accounts.types.#{@account.account_type}") %></dd>
+          </div>
+          <div>
+            <dt class="text-xs font-bold uppercase tracking-wide text-zinc-500"><%= t("finance.accounts.fields.currency") %></dt>
+            <dd class="mt-1 font-semibold text-zinc-900"><%= @account.currency %></dd>
+          </div>
+        </div>
+      </dl>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <%= link_to t("finance.actions.edit"), edit_account_path(@account), class: "rounded-full bg-zinc-950 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-700" %>
+        <%= link_to t("finance.actions.back"), accounts_path, class: "rounded-full border border-zinc-300 px-4 py-2 text-sm font-bold text-zinc-800 transition hover:border-zinc-950" %>
+      </div>
+    </aside>
+
+    <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm shadow-zinc-950/5">
+      <div class="flex items-center justify-between gap-4">
+        <h2 class="text-xl font-black text-zinc-950"><%= t("finance.accounts.show.recent_transactions") %></h2>
+        <%= link_to t("finance.transactions.index.new"), new_transaction_path, class: "text-sm font-bold text-emerald-700 hover:text-emerald-900" %>
+      </div>
+      <div class="mt-5 divide-y divide-zinc-100">
+        <% @recent_transactions.each do |transaction| %>
+          <div class="flex items-center justify-between gap-4 py-3">
+            <div>
+              <p class="font-semibold text-zinc-950"><%= transaction.description.presence || t("finance.transactions.untitled") %></p>
+              <p class="text-sm text-zinc-500"><%= l(transaction.date) %> · <%= t("finance.transactions.types.#{transaction.transaction_type}") %></p>
+            </div>
+            <p class="font-black <%= transaction.expense? || transaction.transfer_direction == "outgoing" ? "text-red-700" : "text-emerald-700" %>">
+              <%= finance_money(transaction.amount, @account.currency) %>
+            </p>
+          </div>
+        <% end %>
+        <% if @recent_transactions.empty? %>
+          <p class="py-6 text-sm text-zinc-500"><%= t("finance.accounts.show.empty_transactions") %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

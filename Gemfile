@@ -62,9 +62,11 @@ group :development do
 end
 
 gem "devise", "~> 5.0"
+gem "pagy"
 
 gem "rspec-rails", "~> 8.0", groups: [ :development, :test ]
 gem "factory_bot_rails", "~> 6.5", groups: [ :development, :test ]
 gem "capybara", "~> 3.40", groups: [ :development, :test ]
+gem "shoulda-matchers", groups: [ :development, :test ]
 
 gem "rack-attack", "~> 6.8"

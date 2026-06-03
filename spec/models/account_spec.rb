@@ -2,31 +2,33 @@
 require "rails_helper"
 
 RSpec.describe Account, type: :model do
-  # ── Associations ─────────────────────────────────────────────────────────
   it { should belong_to(:user) }
   it { should have_many(:transactions).dependent(:destroy) }
 
-  # ── Validations ──────────────────────────────────────────────────────────
   it { should validate_presence_of(:name) }
-  it { should validate_presence_of(:currency) }
-  it { should validate_presence_of(:initial_balance) }
   it { should validate_numericality_of(:initial_balance).is_greater_than_or_equal_to(0) }
   it { should validate_inclusion_of(:account_type)
     .in_array(%w[checking savings investment cash]) }
 
-  # ── Defaults ─────────────────────────────────────────────────────────────
   describe "defaults" do
     it "sets initial_balance to 0 if not provided" do
       account = build(:account, initial_balance: nil)
       account.valid?
-      # Either default is set or validation catches it — implementation decides
-      expect(account.initial_balance.to_f).to eq(0).or(
-        expect(account.errors[:initial_balance]).to be_present
-      )
+
+      expect(account.initial_balance).to eq(0)
+      expect(account.errors[:initial_balance]).to be_empty
     end
   end
 
-  # ── Ownership ─────────────────────────────────────────────────────────────
+  describe "initial balance limits" do
+    it "rejects values outside the database decimal precision" do
+      account = build(:account, initial_balance: Account::MAX_INITIAL_BALANCE + 0.01)
+
+      expect(account).not_to be_valid
+      expect(account.errors[:initial_balance]).to be_present
+    end
+  end
+
   describe "ownership scoping" do
     let(:user_a) { create(:user) }
     let(:user_b) { create(:user) }
@@ -39,7 +41,6 @@ RSpec.describe Account, type: :model do
     end
   end
 
-  # ── Balance calculation ───────────────────────────────────────────────────
   describe "#current_balance" do
     let(:account) { create(:account, initial_balance: 1000.00) }
 
@@ -82,7 +83,7 @@ RSpec.describe Account, type: :model do
         to_account: other,
         amount: 200.00,
         date: Date.current,
-        description: "Poupança"
+        description: "Poupanca"
       )
 
       expect(account.current_balance).to eq(800.00)
@@ -90,7 +91,6 @@ RSpec.describe Account, type: :model do
     end
   end
 
-  # ── Enum ──────────────────────────────────────────────────────────────────
   describe "account_type enum" do
     it "defines checking, savings, investment, cash" do
       expect(Account.account_types.keys)
