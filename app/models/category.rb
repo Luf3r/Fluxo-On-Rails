@@ -36,6 +36,7 @@ class Category < ApplicationRecord
   validates :budget_amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
   validates :name, uniqueness: { scope: :user_id, case_sensitive: false }
   validate :system_category_has_no_user
+  validate :custom_category_has_user
   validate :parent_is_not_self
   validate :parent_is_top_level
   validate :parent_is_accessible
@@ -69,6 +70,10 @@ class Category < ApplicationRecord
 
   def system_category_has_no_user
     errors.add(:user, :present) if system? && user.present?
+  end
+
+  def custom_category_has_user
+    errors.add(:user, :blank) if !system? && user.blank?
   end
 
   def parent_is_not_self

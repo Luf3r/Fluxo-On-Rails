@@ -2,7 +2,9 @@
 require "rails_helper"
 
 RSpec.describe Category, type: :model do
-  it { should belong_to(:user).optional }  # system categories have no user
+  it "belongs to a user association" do
+    expect(described_class.reflect_on_association(:user).macro).to eq(:belongs_to)
+  end
   it { should belong_to(:parent).class_name("Category").optional }
   it { should have_many(:transactions) }
   it { should have_many(:sub_categories).class_name("Category").dependent(:destroy) }
@@ -46,6 +48,13 @@ RSpec.describe Category, type: :model do
     it "can be created by a user" do
       cat = create(:category, user: user, name: "Viagens")
       expect(cat).to be_persisted
+    end
+
+    it "requires an owner for non-system categories" do
+      category = build(:category, user: nil, system: false)
+
+      expect(category).not_to be_valid
+      expect(category.errors[:user]).to be_present
     end
 
     it "keeps user-provided display names in every locale" do

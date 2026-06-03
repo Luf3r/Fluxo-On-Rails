@@ -15,6 +15,19 @@ RSpec.describe "Home", type: :request do
     expect(response.body).to include("Controle seu dinheiro")
   end
 
+  it "keeps Portuguese locale on landing auth calls to action" do
+    get root_path(locale: :"pt-BR")
+
+    expect(response.body).to include('href="/users/sign_up?locale=pt-BR"')
+    expect(response.body).to include('href="/users/sign_in?locale=pt-BR"')
+  end
+
+  it "renders the finance mockup without a nested bordered shell" do
+    get root_path(locale: :"pt-BR")
+
+    expect(response.body).not_to include('rounded-[1.5rem] border border-zinc-200 bg-[#fbfcfa]')
+  end
+
   it "loads the root page in English" do
     get root_path
 

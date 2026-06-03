@@ -297,8 +297,8 @@ pt-BR:
         tags: "Tags"
       filters:
         search: "Buscar descricao"
-        start_date: "Inicio"
-        end_date: "Fim"
+        start_date: "Data inicial"
+        end_date: "Data final"
         type: "Tipo"
         category: "Categoria"
         tag: "Tag"

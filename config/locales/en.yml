@@ -297,8 +297,8 @@ en:
         tags: "Tags"
       filters:
         search: "Search description"
-        start_date: "Start"
-        end_date: "End"
+        start_date: "Start date"
+        end_date: "End date"
         type: "Type"
         category: "Category"
         tag: "Tag"

@@ -59,4 +59,15 @@ RSpec.describe Tag, type: :model do
       expect(tx.tags.last.user).to eq(user)
     end
   end
+
+  describe "tenant isolation" do
+    it "rejects linking another user's tag to a transaction" do
+      transaction = create(:transaction, :expense, account: create(:account))
+      other_tag = create(:tag, user: create(:user), name: "privado")
+      transaction_tag = build(:transaction_tag, taggable_transaction: transaction, tag: other_tag)
+
+      expect(transaction_tag).not_to be_valid
+      expect(transaction_tag.errors[:tag]).to be_present
+    end
+  end
 end

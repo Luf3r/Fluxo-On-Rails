@@ -43,7 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_130000) do
     t.check_constraint "budget_amount IS NULL OR budget_amount >= 0::numeric", name: "chk_categories_budget_amount_non_negative"
     t.check_constraint "category_type::text = ANY (ARRAY['expense'::character varying, 'income'::character varying, 'both'::character varying]::text[])", name: "chk_categories_category_type"
     t.check_constraint "parent_id IS NULL OR parent_id <> id", name: "chk_categories_parent_not_self"
-    t.check_constraint "system = false OR user_id IS NULL", name: "chk_categories_system_user_ownership"
+    t.check_constraint "system = true AND user_id IS NULL OR system = false AND user_id IS NOT NULL", name: "chk_categories_system_user_ownership"
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|

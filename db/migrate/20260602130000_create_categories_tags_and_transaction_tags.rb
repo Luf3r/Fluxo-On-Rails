@@ -19,7 +19,8 @@ class CreateCategoriesTagsAndTransactionTags < ActiveRecord::Migration[8.1]
       name: "chk_categories_category_type"
     add_check_constraint :categories, "budget_amount IS NULL OR budget_amount >= 0",
       name: "chk_categories_budget_amount_non_negative"
-    add_check_constraint :categories, "system = FALSE OR user_id IS NULL",
+    add_check_constraint :categories,
+      "(system = TRUE AND user_id IS NULL) OR (system = FALSE AND user_id IS NOT NULL)",
       name: "chk_categories_system_user_ownership"
     add_check_constraint :categories, "parent_id IS NULL OR parent_id <> id",
       name: "chk_categories_parent_not_self"

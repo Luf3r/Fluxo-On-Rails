@@ -48,6 +48,13 @@ RSpec.describe "Transactions", type: :request do
       expect(response.body).to include('value="pt-BR"')
     end
 
+    it "labels date filters with clear start and end meaning" do
+      get transactions_path(locale: :"pt-BR")
+
+      expect(response.body).to include("Data inicial")
+      expect(response.body).to include("Data final")
+    end
+
     context "filtering" do
       it "filters by date range" do
         get transactions_path, params: {

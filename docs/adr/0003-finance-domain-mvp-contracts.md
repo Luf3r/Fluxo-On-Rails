@@ -39,8 +39,14 @@ Creating or editing a sub-category requires a present, valid `parent_id`.
 Categories that already have transactions cannot gain children, categories that
 already have children cannot become sub-categories, and a category type cannot
 be changed when that would make existing non-transfer transactions incompatible.
-System category display names are localized from fixed keys; user-created
-category names remain user-provided text in every locale.
+System categories are global records with no user owner. Custom categories must
+always belong to exactly one user. System category display names are localized
+from fixed keys; user-created category names remain user-provided text in every
+locale.
+
+Tags are user-owned. Transactions may only be linked to tags owned by the same
+user that owns the transaction account, including when a `TransactionTag` join is
+built directly instead of through the transaction form helpers.
 
 Transactions use Pagy for pagination with a default of 25 items per page. Keep
 the page size hard-coded until there is real demand for configurability. MVP

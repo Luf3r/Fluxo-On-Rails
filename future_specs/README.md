@@ -62,7 +62,7 @@ Locked contract decisions:
   Future promoted specs should not assume integer IDs for users, accounts,
   transactions, categories, tags, goals, imports or reports.
 - Budgets are a nullable decimal `Category#budget_amount` in the MVP. Introduce a `Budget` model only when monthly history, rollover of unused balance, or shared budgets across categories appear.
-- Category hierarchy has only two levels: parent -> child. Transactions can be assigned only to leaf categories. Sub-category create/update flows require a present, valid `parent_id`. Categories with transactions cannot gain children, categories with children cannot become sub-categories, and system category display names are localized without translating user-created category names.
+- Category hierarchy has only two levels: parent -> child. Transactions can be assigned only to leaf categories. Sub-category create/update flows require a present, valid `parent_id`. Categories with transactions cannot gain children, categories with children cannot become sub-categories, custom categories must stay user-owned, and system category display names are localized without translating user-created category names.
 - Pagination uses Pagy with 25 transactions per page by default. Search uses a simple case-insensitive `ILIKE` scope for the MVP; do not add Elasticsearch or `pg_search`.
 - PDF generation uses Prawn. PDF content assertions may use `pdftotext` from `poppler-utils`; response-only PDF specs do not need that system dependency.
 - Production background jobs run through the Fly `worker` process group. Future

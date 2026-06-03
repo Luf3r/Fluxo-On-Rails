@@ -43,7 +43,9 @@ shape implementation. Detailed executable contracts live in `future_specs/`.
 - Categories with transactions cannot gain children, and categories with
   children cannot become sub-categories.
 - System category display names are localized; user-created category names are
-  not translated.
+  not translated, and custom categories must stay user-owned.
+- Transaction tag links must stay tenant-safe; a transaction can only use tags
+  owned by the same user that owns its account.
 - Transaction pagination uses Pagy with 25 items per page.
 - Transaction lists sort newest first by date and creation time so new records
   are visible immediately after creation.
