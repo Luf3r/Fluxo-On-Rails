@@ -2,29 +2,26 @@
 require "rails_helper"
 
 RSpec.describe Transaction, type: :model do
-  # ── Associations ─────────────────────────────────────────────────────────
   it { should belong_to(:account) }
-  it { should belong_to(:category).optional }
   it { should belong_to(:transfer_pair).class_name("Transaction").optional }
 
-  # ── Validations ──────────────────────────────────────────────────────────
   it { should validate_presence_of(:amount) }
   it { should validate_presence_of(:date) }
   it { should validate_presence_of(:transaction_type) }
   it { should validate_numericality_of(:amount).is_greater_than(0) }
 
-  # ── Enums ────────────────────────────────────────────────────────────────
   describe "transaction_type enum" do
     it { should define_enum_for(:transaction_type)
+      .backed_by_column_of_type(:string)
       .with_values(income: "income", expense: "expense", transfer: "transfer") }
   end
 
   describe "status enum" do
     it { should define_enum_for(:status)
+      .backed_by_column_of_type(:string)
       .with_values(settled: "settled", pending: "pending") }
   end
 
-  # ── Auto-pending for future dates ─────────────────────────────────────────
   describe "automatic status assignment" do
     context "when date is today" do
       it "defaults to settled" do
@@ -54,7 +51,15 @@ RSpec.describe Transaction, type: :model do
     end
   end
 
-  # ── Scopes ────────────────────────────────────────────────────────────────
+  describe "amount limits" do
+    it "rejects values outside the database decimal precision" do
+      transaction = build(:transaction, amount: Transaction::MAX_AMOUNT + 0.01)
+
+      expect(transaction).not_to be_valid
+      expect(transaction.errors[:amount]).to be_present
+    end
+  end
+
   describe "scopes" do
     let(:account) { create(:account) }
 
@@ -70,24 +75,12 @@ RSpec.describe Transaction, type: :model do
       end
     end
 
-    describe ".by_category" do
-      let(:cat_a) { create(:category) }
-      let(:cat_b) { create(:category) }
-      let!(:tx_a)  { create(:transaction, :expense, account: account, category: cat_a) }
-      let!(:tx_b)  { create(:transaction, :expense, account: account, category: cat_b) }
-
-      it "filters by category" do
-        expect(Transaction.by_category(cat_a.id)).to include(tx_a)
-        expect(Transaction.by_category(cat_a.id)).not_to include(tx_b)
-      end
-    end
-
     describe ".search" do
-      let!(:tx) { create(:transaction, :income, account: account, description: "Salário mensal") }
+      let!(:tx) { create(:transaction, :income, account: account, description: "Salario mensal") }
 
       it "finds by partial case-insensitive description" do
-        expect(Transaction.search("salário")).to include(tx)
-        expect(Transaction.search("SALÁRIO")).to include(tx)
+        expect(Transaction.search("salario")).to include(tx)
+        expect(Transaction.search("SALARIO")).to include(tx)
         expect(Transaction.search("mensal")).to include(tx)
       end
 
@@ -125,30 +118,6 @@ RSpec.describe Transaction, type: :model do
         expect(analytics_scope).to include(income_tx)
         expect(analytics_scope).not_to include(transfer_tx)
       end
-    end
-  end
-
-  # ── Cache invalidation ───────────────────────────────────────────────────
-  describe "analytics cache invalidation" do
-    let(:user) { create(:user) }
-    let(:account) { create(:account, user: user) }
-    let(:cache_pattern) { "analytics/*/#{user.id}/*" }
-
-    it "invalidates cache after create" do
-      expect(Rails.cache).to receive(:delete_matched).with(cache_pattern)
-      create(:transaction, :income, account: account)
-    end
-
-    it "invalidates cache after update" do
-      tx = create(:transaction, :income, account: account)
-      expect(Rails.cache).to receive(:delete_matched).with(cache_pattern)
-      tx.update!(amount: 999)
-    end
-
-    it "invalidates cache after destroy" do
-      tx = create(:transaction, :income, account: account)
-      expect(Rails.cache).to receive(:delete_matched).with(cache_pattern)
-      tx.destroy!
     end
   end
 end

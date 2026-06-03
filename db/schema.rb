@@ -10,9 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_02_030000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_02_121000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts", id: :uuid, default: nil, force: :cascade do |t|
+    t.string "account_type", default: "checking", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "BRL", null: false
+    t.decimal "initial_balance", precision: 14, scale: 2, default: "0.0", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "user_id", null: false
+    t.index ["user_id", "account_type"], name: "index_accounts_on_user_id_and_account_type"
+    t.index ["user_id", "name"], name: "index_accounts_on_user_id_and_name"
+    t.index ["user_id"], name: "index_accounts_on_user_id"
+  end
 
   create_table "solid_cable_messages", force: :cascade do |t|
     t.binary "channel", null: false
@@ -156,6 +169,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_030000) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "transactions", id: :uuid, default: nil, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.decimal "amount", precision: 14, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.date "date", null: false
+    t.string "description"
+    t.string "status", default: "settled", null: false
+    t.string "transaction_type", default: "expense", null: false
+    t.string "transfer_direction"
+    t.uuid "transfer_pair_id"
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "date"], name: "index_transactions_on_account_id_and_date"
+    t.index ["account_id", "status"], name: "index_transactions_on_account_id_and_status"
+    t.index ["account_id", "transaction_type"], name: "index_transactions_on_account_id_and_transaction_type"
+    t.index ["account_id"], name: "index_transactions_on_account_id"
+    t.index ["transaction_type", "status"], name: "index_transactions_on_transaction_type_and_status"
+    t.index ["transfer_pair_id"], name: "index_transactions_on_transfer_pair_id"
+  end
+
   create_table "users", id: :uuid, default: nil, force: :cascade do |t|
     t.string "avatar_url"
     t.datetime "confirmation_sent_at"
@@ -178,10 +210,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_030000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "accounts", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_failed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "transactions", "accounts"
+  add_foreign_key "transactions", "transactions", column: "transfer_pair_id"
 end

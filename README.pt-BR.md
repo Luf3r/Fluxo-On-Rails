@@ -13,7 +13,7 @@
 
 Fluxo é uma plataforma de finanças pessoais onde os usuários poderão acompanhar receitas e despesas, gerenciar múltiplas contas financeiras, definir orçamentos por categoria, criar metas de economia e gerar relatórios analíticos.
 
-Este repositório está atualmente na **fase de fundação e autenticação**: a base Rails, banco de dados, fluxos Devise, rate limiting e CI estão no lugar, mas as funcionalidades financeiras ainda não foram implementadas. O monorepo TypeScript anterior (NestJS + Next.js) serve como referência conceitual — este app começa do zero a partir das convenções Rails, sem portar a arquitetura anterior.
+Este repositório está atualmente na **primeira fase do MVP financeiro**: a base Rails, a autenticação Devise e o domínio de contas/transações estão no lugar. Usuários podem criar contas financeiras, registrar receitas e despesas e mover dinheiro por transferências representadas em duas linhas pareadas. O monorepo TypeScript anterior (NestJS + Next.js) serve como referência conceitual — este app começa do zero a partir das convenções Rails, sem portar a arquitetura anterior.
 
 ---
 
@@ -37,7 +37,8 @@ responsiva do projeto.
 | Jobs / Cache / WebSockets | Solid Queue · Solid Cache · Solid Cable |
 | Frontend | Hotwire · Turbo · Stimulus · Tailwind CSS v4 |
 | Armazenamento de arquivos | Active Storage (disco em dev/test) |
-| Testes | RSpec · FactoryBot · Capybara |
+| Paginação | Pagy |
+| Testes | RSpec · FactoryBot · Capybara · shoulda-matchers |
 | Linting | RuboCop Rails Omakase |
 | Serviços locais | Docker Compose (PostgreSQL para testes · Mailpit) |
 | Deploy | App Fly.io `fluxo-on-rails` em `gru`, grupos de processo web/worker, usando Neon |
@@ -149,6 +150,12 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 - Throttles Rack::Attack para tentativas de login e recuperação de senha
 - Content Security Policy aplicada nas respostas do navegador
 - Página inicial e entradas completas de autenticação Devise: login, cadastro, recuperação de senha, confirmação de email e edição de conta
+- Contas financeiras por usuário com IDs UUID v7, tipos, moedas, saldo inicial, cálculo de saldo atual e tratamento vermelho para saldo negativo
+- Transações de receita, despesa e transferência, incluindo status pendente automático para datas futuras
+- Transferências pareadas pelo serviço `Transfers::Create`, ligadas por `transfer_pair`, isoladas a contas do mesmo usuário, editadas/removidas em conjunto e bloqueadas quando origem e destino são a mesma conta
+- Telas autenticadas de CRUD para contas e transações, com `404 Not Found` tenant-safe
+- Busca de transações com PostgreSQL `ILIKE`, ordenação mais recente primeiro, paginação Pagy em 25 itens por página, filtros tolerantes a datas inválidas e que preservam idioma, formatação monetária por locale e validação amigável para valores fora da precisão decimal do banco
+- Cobertura ativa de locale para navegação financeira, telas de transações e mensagens de validação em inglês e português
 - Serviço local Mailpit para email em desenvolvimento
 - Configuração de deploy Fly.io com Docker, grupos de processo `web`/`worker`, health check em `/up`, Machines de 512 MB e migrations por release command
 - CI: migrations do banco, RSpec, RuboCop, auditorias de vulnerabilidade, Brakeman, Zeitwerk e precompile dos assets de produção
@@ -156,9 +163,9 @@ RAILS_ENV=production SECRET_KEY_BASE_DUMMY=1 bundle exec dotenv -f .env -- bin/r
 
 **Adiado para fases futuras:**
 
-- Contas, transações, categorias, orçamentos, metas e dashboard
+- Categorias, tags, orçamentos, metas, analytics e dashboard
 - OAuth
-- Relatórios em PDF, importação CSV, paginação e busca
+- Relatórios em PDF e importação CSV
 
 ---
 

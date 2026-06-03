@@ -11,6 +11,9 @@ class User < ApplicationRecord
   validates :currency, inclusion: { in: SUPPORTED_CURRENCIES }
   validates :preferred_locale, presence: true, inclusion: { in: SUPPORTED_LOCALES }
 
+  has_many :accounts, dependent: :destroy
+  has_many :transactions, through: :accounts
+
   def after_confirmation
     update_column(:email_verified_at, confirmed_at)
   end

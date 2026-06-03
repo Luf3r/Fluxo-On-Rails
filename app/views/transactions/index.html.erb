@@ -1,0 +1,66 @@
+<% content_for :title, t("finance.transactions.index.title") %>
+
+<section class="mx-auto max-w-7xl px-5 py-10 lg:px-8">
+  <div class="flex flex-col gap-5 border-b border-zinc-200 pb-6 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p class="text-sm font-bold uppercase tracking-[0.16em] text-emerald-700"><%= t("finance.transactions.index.eyebrow") %></p>
+      <h1 class="mt-2 text-4xl font-black tracking-tight text-zinc-950"><%= t("finance.transactions.index.heading") %></h1>
+      <p class="mt-3 max-w-2xl text-base leading-7 text-zinc-600"><%= t("finance.transactions.index.body") %></p>
+    </div>
+    <%= link_to t("finance.transactions.index.new"), new_transaction_path, class: "inline-flex items-center justify-center rounded-full bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700" %>
+  </div>
+
+  <%= form_with url: transactions_path, method: :get, class: "mt-6 grid gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm shadow-zinc-950/5 lg:grid-cols-[1.2fr_0.7fr_0.7fr_0.7fr_auto]" do |form| %>
+    <%= hidden_field_tag :locale, I18n.locale if I18n.locale != I18n.default_locale %>
+    <%= form.search_field :q, value: params[:q], placeholder: t("finance.transactions.filters.search"), class: "rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    <%= form.date_field :start_date, value: params[:start_date], class: "rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    <%= form.date_field :end_date, value: params[:end_date], class: "rounded-xl border border-zinc-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    <%= form.select :transaction_type, [[t("finance.transactions.filters.all_types"), ""]] + Transaction.transaction_types.keys.map { |type| [t("finance.transactions.types.#{type}"), type] }, { selected: params[:transaction_type] }, class: "rounded-xl border border-zinc-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-700" %>
+    <%= form.submit t("finance.transactions.filters.submit"), class: "rounded-xl bg-zinc-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700" %>
+  <% end %>
+
+  <div class="mt-6 overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm shadow-zinc-950/5">
+    <div class="hidden grid-cols-[1fr_0.65fr_0.65fr_0.55fr_0.4fr] gap-4 border-b border-zinc-200 bg-zinc-50 px-5 py-3 text-xs font-bold uppercase tracking-wide text-zinc-500 md:grid">
+      <span><%= t("finance.transactions.table.description") %></span>
+      <span><%= t("finance.transactions.table.account") %></span>
+      <span><%= t("finance.transactions.table.date") %></span>
+      <span><%= t("finance.transactions.table.amount") %></span>
+      <span></span>
+    </div>
+
+    <div class="divide-y divide-zinc-100">
+      <% @transactions.each do |transaction| %>
+        <article class="grid gap-3 px-5 py-4 md:grid-cols-[1fr_0.65fr_0.65fr_0.55fr_0.4fr] md:items-center">
+          <div>
+            <h2 class="font-bold text-zinc-950"><%= link_to transaction.description.presence || t("finance.transactions.untitled"), transaction_path(transaction), class: "hover:text-emerald-700" %></h2>
+            <p class="mt-1 text-sm text-zinc-500"><%= t("finance.transactions.types.#{transaction.transaction_type}") %> · <%= t("finance.transactions.statuses.#{transaction.status}") %></p>
+          </div>
+          <p class="text-sm font-semibold text-zinc-700"><%= transaction.account.name %></p>
+          <p class="text-sm text-zinc-600"><%= l(transaction.date) %></p>
+          <p class="text-sm font-black <%= transaction.expense? || transaction.transfer_direction == "outgoing" ? "text-red-700" : "text-emerald-700" %>"><%= finance_money(transaction.amount, transaction.account.currency) %></p>
+          <div class="flex gap-2 md:justify-end">
+            <%= link_to t("finance.actions.edit"), edit_transaction_path(transaction), class: "rounded-full border border-zinc-200 px-3 py-2 text-xs font-bold text-zinc-700 transition hover:border-zinc-950" %>
+          </div>
+        </article>
+      <% end %>
+
+      <% if @transactions.empty? %>
+        <p class="px-5 py-10 text-center text-sm text-zinc-500"><%= t("finance.transactions.index.empty") %></p>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @pagy.count.positive? %>
+    <div class="mt-5 flex flex-col gap-3 text-sm text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
+      <p><%= t("finance.transactions.pagination.summary", from: @pagy.from, to: @pagy.to, count: @pagy.count) %></p>
+      <div class="flex gap-2">
+        <% if @pagy.previous %>
+          <%= link_to t("finance.transactions.pagination.previous"), transactions_path(request.query_parameters.except("locale").merge(page: @pagy.previous)), class: "rounded-full border border-zinc-300 px-4 py-2 font-bold text-zinc-800 transition hover:border-zinc-950" %>
+        <% end %>
+        <% if @pagy.next %>
+          <%= link_to t("finance.transactions.pagination.next"), transactions_path(request.query_parameters.except("locale").merge(page: @pagy.next)), class: "rounded-full border border-zinc-300 px-4 py-2 font-bold text-zinc-800 transition hover:border-zinc-950" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</section>
